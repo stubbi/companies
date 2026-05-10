@@ -1,4 +1,4 @@
-Claude for Financial Services Agent Company Port
+Financial Services Agent Company Port
 Copyright 2026 Jannes Stubbemann
 
 This package is a community port into the Agent Companies format
@@ -15,4 +15,11 @@ license. This package adds Agent Companies manifest scaffolding and
 references upstream content by SHA; it does not modify or fork
 upstream skill content.
 
+This port adds four port-original (hand-authored) skills owned by the
+CEO role — intake-triage, cross-team-coordination, escalation-routing,
+weekly-summary — that have no upstream counterpart. They are licensed
+under Apache-2.0 to match the rest of this package.
+
 This port is not affiliated with, endorsed by, or sponsored by Anthropic.
+The product name "Claude for Financial Services" is a trademark of
+Anthropic, PBC and is not used in this port's identifiers.

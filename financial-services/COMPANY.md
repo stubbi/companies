@@ -1,10 +1,11 @@
 ---
 schema: agentcompanies/v1
-slug: claude-for-financial-services
-name: Claude for Financial Services
-description: 10-agent finance company — coverage, research, fund admin, and onboarding
-  — ported from anthropics/financial-services into the Agent Companies format.
-version: 0.1.0
+slug: financial-services
+name: Financial Services
+description: 11-agent finance company — coverage, research, fund admin, and onboarding,
+  with a CEO that handles intake and cross-team coordination. Ported from anthropics/financial-services
+  into the Agent Companies format.
+version: 0.2.0
 license: Apache-2.0
 authors:
 - name: Jannes Stubbemann
@@ -30,9 +31,9 @@ metadata:
     license: Apache-2.0
   affiliation: Community port. Not affiliated with or endorsed by Anthropic.
 ---
-# Claude for Financial Services
+# Financial Services
 
-10-agent finance company — coverage, research, fund admin, and onboarding — ported from anthropics/financial-services into the Agent Companies format.
+11-agent finance company — coverage, research, fund admin, and onboarding, with a CEO that handles intake and cross-team coordination. Ported from anthropics/financial-services into the Agent Companies format.
 
 ## Boundaries
 

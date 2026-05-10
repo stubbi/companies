@@ -128,6 +128,80 @@ def test_emit_org_chart_dot_contains_all_agents_and_teams():
     assert '"team-a" -> "alpha"' in dot
 
 
+from scripts.build import Agent, Skill
+
+
+def test_top_level_agent_renders_as_direct_child_of_company(tmp_path):
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    # Add a top-level agent (team=None) and emit
+    m.agents["chief"] = Agent(
+        name="Chief",
+        title="Chief Coordinator",
+        description="Top-level coordinator.",
+        skills=["skill-1"],
+        team=None,
+    )
+    emit_agents(m, tmp_path)
+
+    chief_md = (tmp_path / "chief" / "AGENTS.md").read_text()
+    fm_end = chief_md.find("\n---\n", 4)
+    fm = yaml.safe_load(chief_md[4:fm_end])
+    assert fm["reportsTo"] == "../../COMPANY.md"
+    assert "executive" in fm["tags"]
+
+
+def test_top_level_agent_in_org_chart_edges_from_company():
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    m.agents["chief"] = Agent(
+        name="Chief",
+        title="Chief Coordinator",
+        description="Top-level coordinator.",
+        skills=["skill-1"],
+        team=None,
+    )
+    dot = emit_org_chart_dot(m)
+    assert f'"{m.slug}" -> "chief"' in dot
+    # And no spurious "None -> chief" edge from a None team
+    assert '"None"' not in dot
+
+
+def test_port_original_skill_preserved_when_emit_skills_runs(tmp_path):
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    # Mark skill-1 as port-original and pre-author its file
+    m.skills["skill-1"] = Skill(
+        name="Skill One",
+        description="Hand-authored.",
+        port_original=True,
+    )
+    skills_dir = tmp_path
+    out_dir = skills_dir / "skill-1"
+    out_dir.mkdir(parents=True)
+    original_body = "---\nslug: skill-1\nname: Skill One\ndescription: Hand-authored.\n---\n# Hand-authored body\nDo not overwrite.\n"
+    (out_dir / "SKILL.md").write_text(original_body)
+
+    # emit_skills should NOT touch the port-original SKILL.md
+    emit_skills(m, canonical_owner={}, content_hashes={}, skills_root=skills_dir)
+    assert (out_dir / "SKILL.md").read_text() == original_body
+
+
+def test_port_original_skill_missing_file_raises(tmp_path):
+    import pytest
+
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    m.skills["skill-1"] = Skill(
+        name="Skill One",
+        description="Hand-authored.",
+        port_original=True,
+    )
+    # No SKILL.md authored — should raise
+    with pytest.raises(SystemExit, match="(?i)port-original"):
+        emit_skills(m, canonical_owner={}, content_hashes={}, skills_root=tmp_path)
+
+
 def test_emit_skills_creates_one_file_per_skill_with_canonical_path(tmp_path):
     fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
     m = load_manifest(fixture)

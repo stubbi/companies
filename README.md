@@ -1,41 +1,118 @@
+<div align="center">
+
 # stubbi/companies
 
-Community-published [Paperclip](https://github.com/paperclipai/paperclip) Agent Companies, maintained by Jannes Stubbemann ([@stubbi](https://github.com/stubbi)).
+**Hand-crafted [Paperclip](https://github.com/paperclipai/paperclip) Agent Companies, ready to deploy.**
 
-## Install
+[![CI](https://github.com/stubbi/companies/actions/workflows/ci.yml/badge.svg)](https://github.com/stubbi/companies/actions/workflows/ci.yml)
+[![License: MIT (wrapper)](https://img.shields.io/badge/wrapper-MIT-yellow.svg)](LICENSE)
+[![Powered by Paperclip](https://img.shields.io/badge/powered_by-Paperclip-2563eb)](https://github.com/paperclipai/paperclip)
+[![Companies](https://img.shields.io/badge/companies-1-22c55e)](#companies)
 
-Each company can be added to a Paperclip instance with:
+</div>
+
+---
+
+## Quick start
+
+```bash
+npx companies.sh add stubbi/companies/financial-services
+```
+
+That's it — your Paperclip instance now has an 11-agent finance company on the board, with org chart, teams, and skills wired up.
+
+[How does this work?](#how-it-works) · [What's an Agent Company?](#whats-an-agent-company) · [Browse the catalog](#companies)
+
+---
+
+## What's an Agent Company?
+
+An **Agent Company** is a fully-configured team of AI agents — org chart, teams, skills, governance — packaged so you can `import` it into [Paperclip](https://github.com/paperclipai/paperclip) and have a working AI workforce in minutes. Each company in this repo is:
+
+- **Domain-specific.** Finance, legal, research, ops — not generic prompt wrappers.
+- **Skill-loaded.** Every agent ships with the workflows it needs to do its job.
+- **Runtime-agnostic.** Works with Claude Code, Codex, Gemini, OpenCode, Cursor, Pi, and Hermes via Paperclip's adapter chain — Claude is the reference runtime, others run with varying skill polish.
+- **Boundary-aware.** Agents know what they can and cannot decide; outputs are staged for human sign-off where regulation requires it.
+- **Provenance-honest.** Community ports are pinned by upstream commit SHA, hashed for drift detection, and preserve upstream license + attribution. Nothing is vendored or forked.
+
+## How it works
 
 ```bash
 npx companies.sh add stubbi/companies/<company-slug>
 ```
 
-## Companies
+`companies.sh` resolves the path to a directory in this repo, validates the company manifest, and imports the team into your Paperclip instance. Each company directory is self-contained:
 
-### [Claude for Financial Services](./claude-for-financial-services)
-
-```bash
-npx companies.sh add stubbi/companies/claude-for-financial-services
+```
+<company-slug>/
+├── COMPANY.md          # company-level manifest (generated)
+├── teams/              # team manifests (generated)
+├── agents/             # one AGENTS.md per role (generated)
+├── skills/             # one SKILL.md per skill — generated for upstream-referenced,
+│                       # hand-authored for port-original
+├── manifest.yaml       # canonical source — edit this, run `make build`
+├── images/             # org chart (generated)
+├── LICENSE             # company-level license
+└── NOTICE              # upstream attribution where applicable
 ```
 
-Community port of [`anthropics/financial-services`](https://github.com/anthropics/financial-services) into the Agent Companies format.
+Companies that port an external repo (like `financial-services`) ship a `make bump SHA=<new-sha>` workflow that re-fetches upstream by content hash and re-generates the manifest. The pinned SHA is the contract.
 
-- **10 agents** across 4 functional areas (coverage & advisory, research & modeling, fund admin & finance ops, operations & onboarding)
-- **31 deduplicated skills**, all referenced upstream by pinned commit SHA — nothing vendored or forked
-- **License:** Apache-2.0 (matches upstream); `NOTICE` preserves upstream attribution per Apache-2.0 §4
+## Companies
 
-> **Community port. Not affiliated with or endorsed by Anthropic.**
+### [Financial Services](./financial-services)
 
-> **Boundaries.** Nothing in `claude-for-financial-services` constitutes investment, legal, tax, or accounting advice. These agents draft analyst work product (models, memos, research notes, reconciliations) for review by a qualified professional. They do not make investment recommendations, execute transactions, bind risk, post to a ledger, or approve onboarding; every output is staged for human sign-off. You are responsible for verifying outputs and for compliance with the laws and regulations that apply to your firm. See the [company's Boundaries section](./claude-for-financial-services/README.md#boundaries) for full detail.
+> Community port of [`anthropics/financial-services`](https://github.com/anthropics/financial-services) (Anthropic's "Claude for Financial Services") into the Agent Companies format. Runtime-agnostic; Claude is the reference runtime, Codex / Gemini / OpenCode / Hermes / Cursor / Pi are supported via the adapter chain with varying skill polish.
 
-[Company README →](./claude-for-financial-services/README.md)
+```bash
+npx companies.sh add stubbi/companies/financial-services
+```
 
-## License
+| | |
+|---|---|
+| **Agents** | 11 (1 CEO + 10 specialists across 4 teams) |
+| **Skills** | 31 referenced upstream + 4 port-original (CEO-owned) |
+| **License** | Apache-2.0 |
+| **Source** | [`anthropics/financial-services`](https://github.com/anthropics/financial-services) at pinned commit `57772c3f` |
 
-This repository's wrapper content (top-level README, structure) is MIT-licensed. Individual companies have their own licenses — see each company's `LICENSE` file.
+The CEO handles intake triage, cross-team coordination, escalation routing, and weekly summaries. Specialists cover coverage & advisory, research & modeling, fund admin & finance ops, and KYC. Every output is staged for human sign-off — agents do not execute trades, post to a ledger, or approve onboarding.
 
-Where individual companies operate in regulated domains (finance, legal, medical, etc.), each company's README documents the appropriate boundaries — read those before deploying.
+[Company README →](./financial-services/README.md)
+
+> **Boundaries.** Nothing in `financial-services` constitutes investment, legal, tax, or accounting advice. These agents draft analyst work product (models, memos, research notes, reconciliations) for review by a qualified professional. They do not make investment recommendations, execute transactions, bind risk, post to a ledger, or approve onboarding. You are responsible for verifying outputs and for compliance with the laws and regulations that apply to your firm. See the [company's Boundaries section](./financial-services/README.md#boundaries) for full detail.
+
+> **Community port. Not affiliated with or endorsed by Anthropic.** "Claude" is a trademark of Anthropic, PBC.
+
+---
+
+## Repo conventions
+
+- **Top-level wrapper** is MIT — the README, layout, top-level docs, and CI scaffolding.
+- **Each company** ships its own `LICENSE` and `NOTICE`. Read those before deploying — community ports preserve upstream license terms (typically Apache-2.0 for Anthropic ports).
+- **Regulated domains** (finance, legal, medical) have a `Boundaries` section in the company README. Read it before assigning real work.
+- **Bumping a port:** `cd <company> && make bump SHA=<new-sha>` rewrites the manifest, regenerates all artifacts, and re-validates content hashes against the new upstream commit.
+- **Validation:** every company has `make build`, `make check`, and `make test` targets. CI runs `make test` and `make check` on every PR.
 
 ## Contributing
 
-This is a personal catalog. If you'd like to publish your own community-ported or original Paperclip companies, the cleanest path is your own `<your-username>/companies` repo — `companies.sh` installs are repo-agnostic.
+This is a personal catalog with one maintainer and one taste. I'm happy to merge well-scoped fixes — typos, link rot, schema drift, upstream SHA bumps. For new companies, the cleanest path is **your own `<your-username>/companies` repo**: `companies.sh` installs are repo-agnostic, so you don't need a PR here. Self-published catalogs let you keep your own bump cadence and curatorial voice.
+
+If you do want to contribute to this catalog, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Related
+
+- [Paperclip](https://github.com/paperclipai/paperclip) — open-source orchestration for zero-human companies. The runtime these companies plug into.
+- [paperclipai/companies](https://github.com/paperclipai/companies) — official Paperclip catalog (16+ companies). Companies submitted there go through maintainer review.
+- [VectifyAI/PageIndex](https://github.com/VectifyAI/PageIndex) — vectorless tree-traversal retrieval over long PDFs. Useful when your agents work with long professional documents.
+
+## License
+
+Top-level wrapper: [MIT](LICENSE). Individual companies have their own licenses — see each company's `LICENSE` file. Where individual companies operate in regulated domains (finance, legal, medical), each company's README documents the appropriate boundaries — read those before deploying.
+
+---
+
+<div align="center">
+
+Made with care by [Jannes Stubbemann](https://github.com/stubbi). Powered by [Paperclip](https://github.com/paperclipai/paperclip).
+
+</div>

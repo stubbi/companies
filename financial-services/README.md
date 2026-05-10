@@ -1,16 +1,16 @@
-# Claude for Financial Services
+# Financial Services
 
-> **Community port** of [`anthropics/financial-services`](https://github.com/anthropics/financial-services) into the [Agent Companies](https://agentcompanies.io) format. **Not affiliated with or endorsed by Anthropic.**
+> **Community port** of [`anthropics/financial-services`](https://github.com/anthropics/financial-services) (Anthropic's "Claude for Financial Services") into the [Agent Companies](https://agentcompanies.io) format. **Not affiliated with or endorsed by Anthropic.** Runtime-agnostic via the Paperclip adapter chain — Claude is the reference runtime; Codex, Gemini, OpenCode, Cursor, and others are supported with varying skill polish.
 
-10 agents across 4 functional areas — coverage & advisory, research & modeling, fund admin & finance ops, operations & onboarding. Skills are referenced upstream by pinned commit SHA, not vendored.
+11 agents — a CEO who handles intake, coordination, and escalation, plus 10 specialists across 4 teams: coverage & advisory, research & modeling, fund admin & finance ops, operations & onboarding. Specialist skills are referenced upstream by pinned commit SHA (not vendored); the CEO's coordination skills are port-original.
 
 ## Getting Started
 
 ```bash
-npx paperclipai company import https://github.com/paperclipai/companies/tree/main/claude-for-financial-services
+npx companies.sh add stubbi/companies/financial-services
 ```
 
-See [Paperclip](https://paperclip.ing) for more information.
+See [Paperclip](https://github.com/paperclipai/paperclip) for more information.
 
 ## Org chart
 
@@ -20,6 +20,7 @@ See [Paperclip](https://paperclip.ing) for more information.
 
 | Agent | Team | What it does | Skills |
 |---|---|---|---|
+| **CEO** | _(top-level, port-original)_ | Front of house — intake triage, cross-team coordination, escalation, weekly summary | 4 |
 | **Pitch Agent** | Coverage & Advisory | Comps, precedents, LBO → branded pitch deck, end to end | 11 |
 | **Meeting Prep Agent** | Coverage & Advisory | Briefing pack before every client meeting | 4 |
 | **Market Researcher** | Research & Modeling | Sector or theme → industry overview, competitive landscape, peer comps, ideas shortlist | 5 |
@@ -31,11 +32,13 @@ See [Paperclip](https://paperclip.ing) for more information.
 | **Statement Auditor** | Fund Admin & Finance Ops | Audits LP statements before distribution | 3 |
 | **KYC Screener** | Operations & Onboarding | Parses onboarding docs, runs the rules engine, flags gaps | 3 |
 
-## Skills (31 unique, referenced upstream)
+## Skills (31 referenced upstream + 4 port-original)
 
-Most-shared: `xlsx-author` (8 agents) · `audit-xls` (6) · `pptx-author` (3) · `comps-analysis` (3).
+Most-shared upstream: `xlsx-author` (8 agents) · `audit-xls` (6) · `pptx-author` (3) · `comps-analysis` (3).
 
-Each `skills/<slug>/SKILL.md` file is a thin reference manifest pointing to the upstream file at the pinned commit. Skill content is fetched on demand by the runtime; nothing is forked or vendored.
+Port-original (CEO-owned, hand-authored in this repo, no upstream counterpart): `intake-triage`, `cross-team-coordination`, `escalation-routing`, `weekly-summary`.
+
+Upstream-referenced `skills/<slug>/SKILL.md` files are thin reference manifests pointing to the pinned-commit file; skill content is fetched on demand by the runtime — nothing is forked or vendored. Port-original `skills/<slug>/SKILL.md` files contain their content inline.
 
 ## Boundaries
 
@@ -66,17 +69,18 @@ git commit -am "chore: bump upstream to <short-sha>"
 ## Layout
 
 ```
-claude-for-financial-services/
-├── COMPANY.md                  # generated
-├── teams/<slug>/TEAM.md        # generated, ×4
-├── agents/<slug>/AGENTS.md     # generated, ×10
-├── skills/<slug>/SKILL.md      # generated, ×31
-├── manifest.yaml               # canonical source — edit this, run `make build`
-├── scripts/build.py            # manifest generator
-├── scripts/check.py            # validator
+financial-services/
+├── COMPANY.md                          # generated
+├── teams/<slug>/TEAM.md                # generated, ×4
+├── agents/<slug>/AGENTS.md             # generated, ×11 (CEO + 10 specialists)
+├── skills/<slug>/SKILL.md              # generated for the 31 upstream-referenced;
+│                                       # hand-authored for the 4 port-original
+├── manifest.yaml                       # canonical source — edit this, run `make build`
+├── scripts/build.py                    # manifest generator (skips port-original SKILL.md)
+├── scripts/check.py                    # validator
 ├── Makefile
-├── images/org-chart.png        # generated
-├── tests/                      # pytest unit tests for the generator
-├── LICENSE                     # Apache-2.0
+├── images/org-chart.png                # generated
+├── tests/                              # pytest unit tests for the generator
+├── LICENSE                             # Apache-2.0
 └── NOTICE                      # upstream attribution
 ```

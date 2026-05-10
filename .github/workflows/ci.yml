@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.company }} — make test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        company:
+          - financial-services
+    defaults:
+      run:
+        working-directory: ${{ matrix.company }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install graphviz
+        run: sudo apt-get update -qq && sudo apt-get install -y graphviz
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "pyyaml>=6.0" "pytest>=7.0"
+
+      - name: make test
+        run: make test
+
+  check:
+    name: ${{ matrix.company }} — make check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        company:
+          - financial-services
+    defaults:
+      run:
+        working-directory: ${{ matrix.company }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "pyyaml>=6.0"
+
+      - name: make check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: make check

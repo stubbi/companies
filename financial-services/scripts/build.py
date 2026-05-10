@@ -40,15 +40,16 @@ class Team:
 class Agent:
     name: str
     title: str
-    team: str
     description: str
     skills: list[str]
+    team: str | None = None  # None = top-level (reports to company)
 
 
 @dataclass
 class Skill:
     name: str
     description: str
+    port_original: bool = False  # True = hand-authored in this repo, not from upstream
 
 
 @dataclass
@@ -87,6 +88,10 @@ def load_manifest(path: Path) -> Manifest:
         agents={k: Agent(**v) for k, v in raw["agents"].items()},
         skills={k: Skill(**v) for k, v in raw["skills"].items()},
     )
+
+
+def is_port_original(skill: Skill) -> bool:
+    return skill.port_original
 
 
 def resolve_canonical_paths(
@@ -202,9 +207,11 @@ def emit_company(m: Manifest, out_path: Path) -> None:
 
 
 def emit_teams(m: Manifest, teams_root: Path) -> None:
-    # Build team -> [agent_slug] mapping from agents
+    # Build team -> [agent_slug] mapping from agents (skip top-level / no-team agents)
     team_agents: dict[str, list[str]] = {t: [] for t in m.teams}
     for agent_slug, agent in m.agents.items():
+        if agent.team is None:
+            continue
         team_agents[agent.team].append(agent_slug)
 
     for slug, team in m.teams.items():
@@ -226,21 +233,27 @@ def emit_agents(m: Manifest, agents_root: Path) -> None:
     for slug, agent in m.agents.items():
         out_dir = agents_root / slug
         out_dir.mkdir(parents=True, exist_ok=True)
+        if agent.team is None:
+            reports_to = "../../COMPANY.md"
+            tags = ["finance", "executive"]
+            sources = [{"mode": "port-original"}]
+        else:
+            reports_to = f"../../teams/{agent.team}/TEAM.md"
+            tags = ["finance", agent.team]
+            sources = [
+                {
+                    "url": f"https://github.com/{m.upstream.repo}/tree/{m.upstream.commit}/plugins/agent-plugins/{slug}",
+                    "mode": "referenced",
+                }
+            ]
         fm = {
             "slug": slug,
             "name": agent.name,
             "title": agent.title,
-            "reportsTo": f"../../teams/{agent.team}/TEAM.md",
+            "reportsTo": reports_to,
             "skills": list(agent.skills),
-            "tags": ["finance", agent.team],
-            "metadata": {
-                "sources": [
-                    {
-                        "url": f"https://github.com/{m.upstream.repo}/tree/{m.upstream.commit}/plugins/agent-plugins/{slug}",
-                        "mode": "referenced",
-                    }
-                ]
-            },
+            "tags": tags,
+            "metadata": {"sources": sources},
         }
         body = f"\n# {agent.name}\n\n{agent.description.strip()}\n"
         (out_dir / "AGENTS.md").write_text(_frontmatter(fm) + body)
@@ -253,6 +266,16 @@ def emit_skills(
     skills_root: Path,
 ) -> None:
     for slug, skill in m.skills.items():
+        if skill.port_original:
+            # Hand-authored skill — its SKILL.md lives in the repo and must not be regenerated.
+            # Verify that the file exists so the build fails fast on missing port-original content.
+            out_dir = skills_root / slug
+            if not (out_dir / "SKILL.md").exists():
+                raise SystemExit(
+                    f"Port-original skill {slug!r} declared in manifest but "
+                    f"{out_dir / 'SKILL.md'} is missing. Author the file before running build."
+                )
+            continue
         owner = canonical_owner[slug]
         upstream_path = f"plugins/agent-plugins/{owner}/skills/{slug}/SKILL.md"
         out_dir = skills_root / slug
@@ -289,10 +312,17 @@ def emit_org_chart_dot(m: Manifest) -> str:
         '  node [shape=box, style=rounded, fontname="Helvetica"];',
         f'  "{m.slug}" [label="{m.name}", style="rounded,filled", fillcolor="#e8f0fe"];',
     ]
+    # Top-level (no team) agents render as direct children of the company.
+    top_level = [(s, a) for s, a in m.agents.items() if a.team is None]
+    for agent_slug, agent in top_level:
+        lines.append(f'  "{agent_slug}" [label="{agent.name}", style="rounded,filled", fillcolor="#dcfce7"];')
+        lines.append(f'  "{m.slug}" -> "{agent_slug}";')
     for team_slug, team in m.teams.items():
         lines.append(f'  "{team_slug}" [label="{team.name}", fillcolor="#fef3c7", style="rounded,filled"];')
         lines.append(f'  "{m.slug}" -> "{team_slug}";')
     for agent_slug, agent in m.agents.items():
+        if agent.team is None:
+            continue
         lines.append(f'  "{agent_slug}" [label="{agent.name}"];')
         lines.append(f'  "{agent.team}" -> "{agent_slug}";')
     lines.append("}")
@@ -312,13 +342,16 @@ def main() -> None:
     m = load_manifest(ROOT / "manifest.yaml")
     print(f"Building {m.slug} v{m.version} from manifest…")
 
+    upstream_skills = {k: v for k, v in m.skills.items() if not v.port_original}
+    port_original_skills = {k: v for k, v in m.skills.items() if v.port_original}
+
     skill_owners, file_dates = fetch_upstream_skill_inventory(m.upstream.repo, m.upstream.commit)
     canonical = resolve_canonical_paths(skill_owners, file_dates)
 
-    # Filter canonical to only skills declared in our manifest
-    canonical = {k: v for k, v in canonical.items() if k in m.skills}
+    # Filter canonical to only upstream-referenced skills declared in our manifest
+    canonical = {k: v for k, v in canonical.items() if k in upstream_skills}
 
-    # Compute content hashes for each declared skill at the canonical path
+    # Compute content hashes for each upstream-referenced skill at the canonical path
     hashes: dict[str, str] = {}
     for slug, owner in canonical.items():
         path = f"plugins/agent-plugins/{owner}/skills/{slug}/SKILL.md"
@@ -326,10 +359,13 @@ def main() -> None:
         hashes[slug] = compute_content_hash(content)
         print(f"  hashed {slug} ← {path}")
 
-    # Verify every declared skill has a canonical owner
-    missing = set(m.skills) - set(canonical)
+    # Verify every upstream-referenced skill has a canonical owner
+    missing = set(upstream_skills) - set(canonical)
     if missing:
         raise SystemExit(f"Skills declared in manifest but missing upstream: {sorted(missing)}")
+
+    if port_original_skills:
+        print(f"  port-original skills (hand-authored): {sorted(port_original_skills)}")
 
     emit_company(m, ROOT / "COMPANY.md")
     emit_teams(m, ROOT / "teams")

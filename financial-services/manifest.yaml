@@ -1,8 +1,8 @@
 schema: agentcompanies/v1
-slug: claude-for-financial-services
-name: Claude for Financial Services
-description: 10-agent finance company — coverage, research, fund admin, and onboarding — ported from anthropics/financial-services into the Agent Companies format.
-version: 0.1.0
+slug: financial-services
+name: Financial Services
+description: 11-agent finance company — coverage, research, fund admin, and onboarding, with a CEO that handles intake and cross-team coordination. Ported from anthropics/financial-services into the Agent Companies format.
+version: 0.2.0
 license: Apache-2.0
 authors:
   - name: Jannes Stubbemann
@@ -35,6 +35,19 @@ teams:
     description: KYC and client onboarding workflows.
 
 agents:
+  ceo:
+    name: CEO
+    title: Chief Executive Officer
+    description: |
+      Front-of-house coordinator for the financial-services team. Receives
+      incoming work, classifies it, routes to the right team, and orchestrates
+      handoffs when work spans teams. Handles escalation routing when a
+      specialist hits a blocker, and produces the company-level weekly summary.
+      Does not run skills the specialists own — no models, audits, KYC, decks,
+      or filings; the CEO coordinates, the teams execute. This role is a
+      port-time addition; upstream `anthropics/financial-services` does not
+      model an org head.
+    skills: [intake-triage, cross-team-coordination, escalation-routing, weekly-summary]
   pitch-agent:
     name: Pitch Agent
     title: Coverage Pitch Builder
@@ -124,6 +137,22 @@ agents:
     skills: [kyc-doc-parse, kyc-rules, xlsx-author]
 
 skills:
+  intake-triage:
+    name: Intake Triage
+    description: Classify an incoming work request and route it to the right team.
+    port_original: true
+  cross-team-coordination:
+    name: Cross-Team Coordination
+    description: Sequence handoffs when work spans multiple teams (e.g., pitch needs comps + valuation + model).
+    port_original: true
+  escalation-routing:
+    name: Escalation Routing
+    description: When a specialist reports a blocker, decide between retry, reassign, or escalate-to-human.
+    port_original: true
+  weekly-summary:
+    name: Weekly Summary
+    description: Compose the company-level weekly digest — what shipped, what's blocked, what needs review.
+    port_original: true
   3-statement-model:
     name: 3-Statement Model
     description: Build linked income statement, balance sheet, and cash flow statement.
