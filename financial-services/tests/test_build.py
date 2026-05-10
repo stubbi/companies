@@ -167,6 +167,70 @@ def test_top_level_agent_in_org_chart_edges_from_company():
     assert '"None"' not in dot
 
 
+def test_single_top_level_agent_coordinates_teams_in_org_chart():
+    """When there's exactly one top-level agent, teams report to it (not the company)."""
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    m.agents["ceo"] = Agent(
+        name="CEO",
+        title="Chief Executive Officer",
+        description="Coordinates the team.",
+        skills=["skill-1"],
+        team=None,
+    )
+    dot = emit_org_chart_dot(m)
+    # Company → CEO (top-level coordinator)
+    assert f'"{m.slug}" -> "ceo"' in dot
+    # CEO → team-a (teams report to coordinator, not company)
+    assert '"ceo" -> "team-a"' in dot
+    # No direct company → team-a edge — teams now report through CEO
+    assert f'"{m.slug}" -> "team-a"' not in dot
+    # Specialists still report to their team
+    assert '"team-a" -> "alpha"' in dot
+
+
+def test_multiple_top_level_agents_keep_teams_under_company():
+    """With 0 or 2+ top-level agents, the coordinator convention falls back to company-as-team-parent."""
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    m.agents["ceo"] = Agent(name="CEO", title="CEO", description="d", skills=["skill-1"], team=None)
+    m.agents["cto"] = Agent(name="CTO", title="CTO", description="d", skills=["skill-1"], team=None)
+    dot = emit_org_chart_dot(m)
+    # Both top-level agents are direct children of the company
+    assert f'"{m.slug}" -> "ceo"' in dot
+    assert f'"{m.slug}" -> "cto"' in dot
+    # Teams stay under company (ambiguous coordinator → fallback)
+    assert f'"{m.slug}" -> "team-a"' in dot
+
+
+def test_team_emitted_with_reports_to_coordinator(tmp_path):
+    """Team manifest's reportsTo should match the coordinator if there's a single top-level agent."""
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    m.agents["ceo"] = Agent(
+        name="CEO",
+        title="CEO",
+        description="d",
+        skills=["skill-1"],
+        team=None,
+    )
+    emit_teams(m, tmp_path)
+    fm_text = (tmp_path / "team-a" / "TEAM.md").read_text()
+    fm_end = fm_text.find("\n---\n", 4)
+    fm = yaml.safe_load(fm_text[4:fm_end])
+    assert fm["reportsTo"] == "../../agents/ceo/AGENTS.md"
+
+
+def test_team_reports_to_company_when_no_coordinator(tmp_path):
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    emit_teams(m, tmp_path)
+    fm_text = (tmp_path / "team-a" / "TEAM.md").read_text()
+    fm_end = fm_text.find("\n---\n", 4)
+    fm = yaml.safe_load(fm_text[4:fm_end])
+    assert fm["reportsTo"] == "../../COMPANY.md"
+
+
 def test_port_original_skill_preserved_when_emit_skills_runs(tmp_path):
     fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
     m = load_manifest(fixture)

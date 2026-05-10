@@ -2,6 +2,7 @@
 slug: fund-admin-finance-ops
 name: Fund Admin & Finance Ops
 description: Valuation, close, and statement workflows for fund administrators.
+reportsTo: ../../agents/ceo/AGENTS.md
 includes:
 - ../../agents/gl-reconciler/AGENTS.md
 - ../../agents/month-end-closer/AGENTS.md

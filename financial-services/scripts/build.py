@@ -206,6 +206,16 @@ def emit_company(m: Manifest, out_path: Path) -> None:
     out_path.write_text(_frontmatter(fm) + "\n".join(body_lines) + "\n")
 
 
+def team_coordinator(m: Manifest) -> str | None:
+    """The single top-level agent (team=None) that coordinates the teams, if any.
+
+    Convention: if exactly one top-level agent exists, teams report to it.
+    With zero or multiple top-level agents, teams report directly to the company.
+    """
+    top_level = [s for s, a in m.agents.items() if a.team is None]
+    return top_level[0] if len(top_level) == 1 else None
+
+
 def emit_teams(m: Manifest, teams_root: Path) -> None:
     # Build team -> [agent_slug] mapping from agents (skip top-level / no-team agents)
     team_agents: dict[str, list[str]] = {t: [] for t in m.teams}
@@ -214,6 +224,11 @@ def emit_teams(m: Manifest, teams_root: Path) -> None:
             continue
         team_agents[agent.team].append(agent_slug)
 
+    coordinator = team_coordinator(m)
+    reports_to = (
+        f"../../agents/{coordinator}/AGENTS.md" if coordinator else "../../COMPANY.md"
+    )
+
     for slug, team in m.teams.items():
         out_dir = teams_root / slug
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -221,6 +236,7 @@ def emit_teams(m: Manifest, teams_root: Path) -> None:
             "slug": slug,
             "name": team.name,
             "description": team.description,
+            "reportsTo": reports_to,
             "includes": [
                 f"../../agents/{a}/AGENTS.md" for a in sorted(team_agents[slug])
             ],
@@ -312,14 +328,20 @@ def emit_org_chart_dot(m: Manifest) -> str:
         '  node [shape=box, style=rounded, fontname="Helvetica"];',
         f'  "{m.slug}" [label="{m.name}", style="rounded,filled", fillcolor="#e8f0fe"];',
     ]
-    # Top-level (no team) agents render as direct children of the company.
+    coordinator = team_coordinator(m)
+
+    # Top-level agents render as direct children of the company.
     top_level = [(s, a) for s, a in m.agents.items() if a.team is None]
     for agent_slug, agent in top_level:
         lines.append(f'  "{agent_slug}" [label="{agent.name}", style="rounded,filled", fillcolor="#dcfce7"];')
         lines.append(f'  "{m.slug}" -> "{agent_slug}";')
+
+    # Teams render under the coordinator if there is one, otherwise under the company.
+    team_parent = coordinator if coordinator else m.slug
     for team_slug, team in m.teams.items():
         lines.append(f'  "{team_slug}" [label="{team.name}", fillcolor="#fef3c7", style="rounded,filled"];')
-        lines.append(f'  "{m.slug}" -> "{team_slug}";')
+        lines.append(f'  "{team_parent}" -> "{team_slug}";')
+
     for agent_slug, agent in m.agents.items():
         if agent.team is None:
             continue
