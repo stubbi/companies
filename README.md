@@ -26,11 +26,15 @@ Community port of [`anthropics/financial-services`](https://github.com/anthropic
 
 > **Community port. Not affiliated with or endorsed by Anthropic.**
 
+> **Boundaries.** Nothing in `claude-for-financial-services` constitutes investment, legal, tax, or accounting advice. These agents draft analyst work product (models, memos, research notes, reconciliations) for review by a qualified professional. They do not make investment recommendations, execute transactions, bind risk, post to a ledger, or approve onboarding; every output is staged for human sign-off. You are responsible for verifying outputs and for compliance with the laws and regulations that apply to your firm. See the [company's Boundaries section](./claude-for-financial-services/README.md#boundaries) for full detail.
+
 [Company README →](./claude-for-financial-services/README.md)
 
 ## License
 
 This repository's wrapper content (top-level README, structure) is MIT-licensed. Individual companies have their own licenses — see each company's `LICENSE` file.
+
+Where individual companies operate in regulated domains (finance, legal, medical, etc.), each company's README documents the appropriate boundaries — read those before deploying.
 
 ## Contributing
 
