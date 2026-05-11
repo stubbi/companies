@@ -1,0 +1,35 @@
+schema: agentcompanies/v1
+slug: test-co
+name: Test Co
+description: Fixture
+version: 0.1.0
+license: CC-BY-NC-4.0
+authors: [{name: Test, email: t@example.com}]
+goals: [Test]
+tags: [test]
+upstream:
+  repo: example/upstream
+  commit: deadbeef
+  license: CC-BY-NC-4.0
+affiliation: "Test"
+usage_restriction: "Non-commercial use only."
+teams:
+  team-a:
+    name: Team A
+    description: Test team
+agents:
+  alpha:
+    name: Alpha
+    title: Alpha Agent
+    team: team-a
+    description: Test agent
+    skills: [skill-1]
+skills:
+  skill-1:
+    name: Skill One
+    description: Test referenced skill
+    upstream_path: skill-1/SKILL.md
+  skill-port:
+    name: Skill Port
+    description: Test port-original skill
+    port_original: true

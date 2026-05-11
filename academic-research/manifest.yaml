@@ -1,0 +1,146 @@
+schema: agentcompanies/v1
+slug: academic-research
+name: Academic Research
+description: 5-agent research-paper company — research, write, review, revise, finalize — driven by the ARS pipeline. CEO handles intake and orchestrates the linear stage handoffs and user-confirmation checkpoints. Ported from Imbad0202/academic-research-skills into the Agent Companies format.
+version: 0.1.0
+license: CC-BY-NC-4.0
+authors:
+  - name: Jannes Stubbemann
+    email: jannes@paperclip.inc
+goals:
+  - Draft full academic papers (research → write → review → revise → finalize) for human researcher review.
+  - Enforce ARS's two integrity gates (2.5 + 4.5) and the 7-mode AI failure checklist before any output is finalized.
+  - Stage every output for human sign-off — no agent here submits to a journal, signs an authorship statement, or makes editorial decisions on the user's behalf.
+tags: [research, academic, papers, literature-review, peer-review, non-commercial]
+
+upstream:
+  repo: Imbad0202/academic-research-skills
+  commit: 58dad474572ea63ca7f204d582632acc413a0efd
+  license: CC-BY-NC-4.0
+
+affiliation: "Community port. Not affiliated with or endorsed by Imbad0202 or the ARS authors."
+
+usage_restriction: |
+  Non-commercial use only. Upstream is licensed CC BY-NC 4.0; this port preserves
+  that restriction. You may use it for personal research, academic work, and
+  non-commercial collaboration. You may not use it as part of a commercial
+  service, paid offering, or to produce work-for-hire.
+
+teams:
+  research:
+    name: Research
+    description: Stage 1 — literature search, methodology blueprint, annotated bibliography, synthesis, devil's-advocate review.
+  writing:
+    name: Writing & Revision
+    description: Stages 2 / 4 / 4' / 5 — outline, draft, revise after review, re-revise, and finalize to MD/DOCX/LaTeX/PDF.
+  review:
+    name: Review
+    description: Stages 3 / 3' — first-round review (EIC + 3 reviewers + devil's advocate) and verification re-review with R&R traceability.
+  integrity:
+    name: Integrity & Pipeline
+    description: Stages 2.5 / 4.5 / 6 — 7-mode AI failure checklist, claim verification, Material Passport, and process summary.
+
+agents:
+  ceo:
+    name: CEO
+    title: Chief Editor
+    description: |
+      Front-of-house coordinator for the academic-research team. Receives the
+      research request, classifies it (full pipeline / lit-review-only /
+      revision-only / fact-check), routes to the right stage owner, and shepherds
+      the user through ARS's 10 decision-heavy checkpoints + 2 integrity-gate
+      acknowledgements. Handles escalation when a stage hits a real blocker
+      (e.g. integrity gate FAIL after 3 retries). Does not run skills the
+      specialists own — no research, drafting, reviewing, or integrity checks;
+      the CEO coordinates, the teams execute. Port-original role; upstream ARS
+      does not model an org head.
+    skills: [intake-triage, pipeline-orchestration, checkpoint-coordination, escalation-routing]
+
+  researcher:
+    name: Researcher
+    title: Stage 1 — Research Lead
+    team: research
+    description: |
+      Owns Stage 1. Runs the deep-research skill end-to-end: research-question
+      brief, methodology blueprint, S2-verified annotated bibliography, synthesis
+      report, INSIGHT collection. Supports modes: full / socratic / lit-review /
+      systematic-review / fact-check / review / quick. Output is staged for the
+      user's RQ + methodology confirmation before Stage 2 begins.
+    skills: [deep-research]
+
+  writer:
+    name: Writer
+    title: Stages 2 / 4 / 4' / 5 — Paper Author
+    team: writing
+    description: |
+      Owns the academic-paper skill across Write (2), Revise (4), Re-Revise (4'),
+      and Finalize (5). Drafts outline → argument map → text → bilingual abstract
+      → figures + captions → citation list. Re-enters for revision rounds with
+      score-trajectory tracking. Finalizes to MD/DOCX/LaTeX/PDF with venue-specific
+      AI disclosure. Output is staged for user confirmation at outline, after
+      each revision, and at format selection.
+    skills: [academic-paper]
+
+  reviewer:
+    name: Reviewer
+    title: Stages 3 / 3' — Editorial Panel
+    team: review
+    description: |
+      Owns the academic-paper-reviewer skill. Stage 3: assembles the first-round
+      review package — EIC + 3 field-adaptive reviewers (methodology + domain +
+      interdisciplinary) + devil's advocate + editorial decision (Accept / Minor
+      / Major / Reject) + revision roadmap, under the v3.6.2 Sprint Contract
+      two-phase protocol. Stage 3': narrow re-review team produces the verification
+      package + R&R Traceability Matrix. Output is read-only — no new claims;
+      attack intensity preserved across revisions.
+    skills: [academic-paper-reviewer]
+
+  integrity-officer:
+    name: Integrity Officer
+    title: Stages 2.5 / 4.5 / 6 — Pipeline Gatekeeper
+    team: integrity
+    description: |
+      Owns the academic-pipeline skill. Runs the two MANDATORY integrity gates
+      (2.5 pre-review sampling + 4.5 zero-tolerance final check) against the
+      7-mode AI failure taxonomy (Lu 2026), maintains the Material Passport,
+      validates claim verification reports, and produces the Stage 6 Paper
+      Creation Process Record + AI Self-Reflection Report. Observer dilution
+      explicitly prevented at gates.
+    skills: [academic-pipeline]
+
+skills:
+  # Upstream-referenced (4 — pinned to the manifest commit; bodies fetched + sha256-validated by build/check)
+  deep-research:
+    name: Deep Research
+    description: Multi-mode literature search, methodology blueprint, S2-verified bibliography, and synthesis with devil's-advocate review.
+    upstream_path: deep-research/SKILL.md
+  academic-paper:
+    name: Academic Paper
+    description: 12-agent draft pipeline — outline, argument map, draft, abstract, figures, citations — with revision and finalization modes.
+    upstream_path: academic-paper/SKILL.md
+  academic-paper-reviewer:
+    name: Academic Paper Reviewer
+    description: 7-agent editorial panel with v3.6.2 Sprint Contract two-phase protocol; supports first-round and re-review modes.
+    upstream_path: academic-paper-reviewer/SKILL.md
+  academic-pipeline:
+    name: Academic Pipeline
+    description: Stage state machine, integrity gates (2.5 + 4.5), 7-mode AI failure checklist, Material Passport, and process-summary skill.
+    upstream_path: academic-pipeline/SKILL.md
+
+  # Port-original (4 — CEO-owned, hand-authored)
+  intake-triage:
+    name: Intake Triage
+    description: Classify an incoming research request and route to the correct ARS pipeline mode.
+    port_original: true
+  pipeline-orchestration:
+    name: Pipeline Orchestration
+    description: Walk the user through the linear stage handoffs (1 → 2 → 2.5 → 3 → … → 6); enforce the 2-revision-loop hard cap.
+    port_original: true
+  checkpoint-coordination:
+    name: Checkpoint Coordination
+    description: Surface ARS's 10 decision-heavy checkpoints + 2 integrity-gate acknowledgements as user-facing prompts; do not advance without explicit confirmation.
+    port_original: true
+  escalation-routing:
+    name: Escalation Routing
+    description: When a stage owner reports a real blocker (integrity FAIL after 3 retries; reviewer Reject; user-rejected outline), escalate to the human researcher with context.
+    port_original: true

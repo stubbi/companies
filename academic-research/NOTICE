@@ -1,0 +1,44 @@
+Academic Research — community port for the Agent Companies catalog.
+
+Upstream source
+---------------
+Imbad0202/academic-research-skills
+  Repository:  https://github.com/Imbad0202/academic-research-skills
+  License:     CC BY-NC 4.0 (Creative Commons Attribution-NonCommercial 4.0 International)
+  Pinned at:   58dad474572ea63ca7f204d582632acc413a0efd  (v3.7.2, 2026-05-10)
+
+Skill content
+-------------
+The four upstream-referenced skills (deep-research, academic-paper,
+academic-paper-reviewer, academic-pipeline) are not vendored or forked. The
+SKILL.md files in this package under skills/<slug>/ are thin manifests that
+point to the upstream paths at the pinned commit and carry a sha256
+contentHash for drift detection. The runtime fetches the upstream content on
+demand at invocation. See `make bump SHA=<new-sha>` for the upgrade path.
+
+The four port-original skills (intake-triage, pipeline-orchestration,
+checkpoint-coordination, escalation-routing) are hand-authored in this
+repository and have no upstream counterpart. They are owned by the CEO role
+and were authored as part of this port.
+
+Affiliation
+-----------
+This is a community port. It is not affiliated with, sponsored by, or
+endorsed by Imbad0202 or the ARS authors. "Academic Research Skills" is a
+project name owned by its respective authors.
+
+Usage restriction
+-----------------
+NON-COMMERCIAL USE ONLY. Upstream is licensed CC BY-NC 4.0; this port
+preserves that restriction. You may use it for personal research, academic
+work, and non-commercial collaboration. You may not use it as part of a
+commercial service, paid offering, or to produce work-for-hire. See LICENSE
+for the full Creative Commons text.
+
+Attribution
+-----------
+When publishing work produced with this package's assistance, attribute as:
+  "Drafted with assistance from the Academic Research Skills pipeline
+   (Imbad0202/academic-research-skills, v3.7.2)."
+And follow your venue's AI-disclosure requirements (the academic-paper skill's
+finalize mode emits a venue-specific disclosure statement).

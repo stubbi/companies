@@ -7,7 +7,7 @@
 [![CI](https://github.com/stubbi/companies/actions/workflows/ci.yml/badge.svg)](https://github.com/stubbi/companies/actions/workflows/ci.yml)
 [![License: MIT (wrapper)](https://img.shields.io/badge/wrapper-MIT-yellow.svg)](LICENSE)
 [![Powered by Paperclip](https://img.shields.io/badge/powered_by-Paperclip-2563eb)](https://github.com/paperclipai/paperclip)
-[![Companies](https://img.shields.io/badge/companies-1-22c55e)](#companies)
+[![Companies](https://img.shields.io/badge/companies-2-22c55e)](#companies)
 
 </div>
 
@@ -82,6 +82,31 @@ The CEO handles intake triage, cross-team coordination, escalation routing, and 
 > **Boundaries.** Nothing in `financial-services` constitutes investment, legal, tax, or accounting advice. These agents draft analyst work product (models, memos, research notes, reconciliations) for review by a qualified professional. They do not make investment recommendations, execute transactions, bind risk, post to a ledger, or approve onboarding. You are responsible for verifying outputs and for compliance with the laws and regulations that apply to your firm. See the [company's Boundaries section](./financial-services/README.md#boundaries) for full detail.
 
 > **Community port. Not affiliated with or endorsed by Anthropic.** "Claude" is a trademark of Anthropic, PBC.
+
+### [Academic Research](./academic-research)
+
+> Community port of [`Imbad0202/academic-research-skills`](https://github.com/Imbad0202/academic-research-skills) (the ARS pipeline) into the Agent Companies format. Runtime-agnostic via the Paperclip adapter chain — Claude is the reference runtime, others run with varying skill polish.
+
+```bash
+npx companies.sh add stubbi/companies/academic-research
+```
+
+| | |
+|---|---|
+| **Agents** | 5 (1 CEO + 4 stage owners across 4 teams) |
+| **Skills** | 4 referenced upstream + 4 port-original (CEO-owned) |
+| **License** | ![NC](https://img.shields.io/badge/CC%20BY--NC%204.0-non--commercial-orange) |
+| **Source** | [`Imbad0202/academic-research-skills`](https://github.com/Imbad0202/academic-research-skills) at pinned commit `58dad474` |
+
+The CEO handles intake triage, pipeline orchestration, checkpoint coordination, and escalation. Stage owners cover Research (Stage 1), Writing & Revision (Stages 2 / 4 / 4' / 5), Review (Stages 3 / 3'), and Integrity & Pipeline (Stages 2.5 / 4.5 / 6). Every output is staged for human sign-off — agents do not submit to journals, sign authorship statements, or attest to research integrity. The pipeline's two integrity gates and 7-mode AI failure checklist are mandatory and not skippable.
+
+[Company README →](./academic-research/README.md)
+
+> ⚠️ **Non-commercial use only.** Upstream is licensed CC BY-NC 4.0 and this port preserves that restriction. Personal research, academic work, and non-commercial collaboration: yes. Commercial services, paid offerings, work-for-hire: no. See the [company's LICENSE](./academic-research/LICENSE) and [NOTICE](./academic-research/NOTICE).
+
+> **Boundaries.** Nothing in `academic-research` constitutes peer-reviewed scholarship on its own. These agents draft research artifacts (literature searches, methodology blueprints, outlines, drafts, review reports, formatted manuscripts) for review by a qualified human researcher. They do not submit to journals, sign authorship statements, make editorial decisions, or attest to research integrity on the user's behalf. See the [company's Boundaries section](./academic-research/README.md#boundaries) for full detail.
+
+> **Community port. Not affiliated with or endorsed by Imbad0202 or the ARS authors.**
 
 ---
 

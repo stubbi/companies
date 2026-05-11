@@ -19,6 +19,7 @@ jobs:
       matrix:
         company:
           - financial-services
+          - academic-research
     defaults:
       run:
         working-directory: ${{ matrix.company }}
@@ -50,6 +51,7 @@ jobs:
       matrix:
         company:
           - financial-services
+          - academic-research
     defaults:
       run:
         working-directory: ${{ matrix.company }}
