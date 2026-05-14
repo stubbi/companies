@@ -123,13 +123,16 @@ def _frontmatter(data: dict[str, Any]) -> str:
 
 
 BOUNDARIES_BODY = (
-    "Nothing in this package constitutes peer-reviewed scholarship on its own. "
-    "These agents draft research artifacts (literature searches, methodology blueprints, "
-    "outlines, drafts, review reports, revision plans, formatted manuscripts) for review "
-    "by a qualified human researcher. They do not submit to journals, sign authorship "
-    "statements, make editorial decisions, or attest to research integrity on the user's "
-    "behalf; every output is staged for human sign-off. The pipeline's integrity gates "
-    "(2.5 / 4.5) and the 7-mode AI failure checklist are mandatory and not skippable."
+    "Nothing in this package constitutes a shippable product, patent, or peer-reviewed result on its own. "
+    "These agents draft research artifacts (Technical Memoranda, invention disclosures, prototype specs, "
+    "handoff documents, project proposals, sunset memos) for review by a human owner; every output is "
+    "staged for human sign-off. The lab does not ship to the user's production systems on its own "
+    "authority, file actual patents, submit to actual journals, or claim peer-review. The wild-duck / "
+    "curiosity track is freedom of method, not freedom of fence — curiosity threads must still trace a "
+    "plausible link to MISSION.md, and the Librarian flags drift. The Director never overrides a "
+    "researcher's curiosity queue; that is a hard policy invariant enforced by `make check`. Mervin Kelly "
+    "is not on staff. Patience, taste, and mentorship are configured, not magic the configuration confers. "
+    "This is an aspiration with scaffolding, not a recreation of Bell Labs."
 )
 
 
@@ -231,11 +234,11 @@ def emit_agents(m: Manifest, agents_root: Path) -> None:
         out_dir.mkdir(parents=True, exist_ok=True)
         if agent.team is None:
             reports_to = "../../COMPANY.md"
-            tags = ["academic", "executive"]
+            tags = ["bell-labs", "executive"]
             sources = [{"mode": "port-original"}]
         else:
             reports_to = f"../../teams/{agent.team}/TEAM.md"
-            tags = ["academic", agent.team]
+            tags = ["bell-labs", agent.team]
             if m.upstream is not None:
                 sources = [
                     {
@@ -361,7 +364,6 @@ def main() -> None:
     for slug, skill in upstream_skills.items():
         if not skill.upstream_path:
             raise SystemExit(f"Skill {slug!r} missing upstream_path")
-        assert m.upstream is not None  # guarded above
         content = fetch_upstream_file(m.upstream.repo, m.upstream.commit, skill.upstream_path)
         hashes[slug] = compute_content_hash(content)
         print(f"  hashed {slug} ← {skill.upstream_path}")
