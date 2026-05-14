@@ -1,0 +1,391 @@
+"""Build script for the Bell Labs Agent Company package.
+
+Generates COMPANY.md, TEAM.md, AGENTS.md, SKILL.md files plus the org-chart
+image from the canonical manifest.yaml. Bell Labs is the catalog's first
+original synthesis — there is no upstream repo, so all upstream-related fields
+are optional.
+"""
+from __future__ import annotations
+
+import base64
+import hashlib
+import subprocess
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
+
+import yaml
+
+ROOT = Path(__file__).resolve().parent.parent
+
+
+@dataclass
+class Author:
+    name: str
+    email: str
+
+
+@dataclass
+class Upstream:
+    repo: str
+    commit: str
+    license: str
+
+
+@dataclass
+class Team:
+    name: str
+    description: str
+
+
+@dataclass
+class Agent:
+    name: str
+    title: str
+    description: str
+    skills: list[str]
+    team: str | None = None  # None = top-level (reports to company)
+
+
+@dataclass
+class Skill:
+    name: str
+    description: str
+    upstream_path: str | None = None  # path within upstream repo, e.g. "deep-research/SKILL.md"
+    port_original: bool = False  # True = hand-authored in this repo, not from upstream
+
+
+@dataclass
+class Manifest:
+    schema: str
+    slug: str
+    name: str
+    description: str
+    version: str
+    license: str
+    authors: list[Author]
+    goals: list[str]
+    tags: list[str]
+    teams: dict[str, Team]
+    agents: dict[str, Agent]
+    skills: dict[str, Skill]
+    upstream: Upstream | None = None
+    affiliation: str | None = None
+    usage_restriction: str | None = None
+
+
+def load_manifest(path: Path) -> Manifest:
+    raw: dict[str, Any] = yaml.safe_load(path.read_text())
+    upstream_raw = raw.get("upstream")
+    upstream = (
+        Upstream(
+            repo=upstream_raw["repo"],
+            commit=upstream_raw["commit"],
+            license=upstream_raw["license"],
+        )
+        if upstream_raw is not None
+        else None
+    )
+    return Manifest(
+        schema=raw["schema"],
+        slug=raw["slug"],
+        name=raw["name"],
+        description=raw["description"],
+        version=raw["version"],
+        license=raw["license"],
+        authors=[Author(**a) for a in raw["authors"]],
+        goals=list(raw["goals"]),
+        tags=list(raw["tags"]),
+        teams={k: Team(**v) for k, v in raw["teams"].items()},
+        agents={k: Agent(**v) for k, v in raw["agents"].items()},
+        skills={k: Skill(**v) for k, v in raw["skills"].items()},
+        upstream=upstream,
+        affiliation=raw.get("affiliation"),
+        usage_restriction=raw.get("usage_restriction"),
+    )
+
+
+def compute_content_hash(content: bytes) -> str:
+    return hashlib.sha256(content).hexdigest()
+
+
+def fetch_upstream_file(repo: str, commit: str, path: str) -> bytes:
+    """Fetch raw bytes of a file from upstream at the pinned commit."""
+    out = subprocess.run(
+        ["gh", "api", f"repos/{repo}/contents/{path}?ref={commit}", "--jq", ".content"],
+        check=True, capture_output=True, text=True,
+    )
+    return base64.b64decode(out.stdout.strip())
+
+
+def _frontmatter(data: dict[str, Any]) -> str:
+    return "---\n" + yaml.safe_dump(data, sort_keys=False, allow_unicode=True) + "---\n"
+
+
+BOUNDARIES_BODY = (
+    "Nothing in this package constitutes a shippable product, patent, or peer-reviewed result on its own. "
+    "These agents draft research artifacts (Technical Memoranda, invention disclosures, prototype specs, "
+    "handoff documents, project proposals, sunset memos) for review by a human owner; every output is "
+    "staged for human sign-off. The lab does not ship to the user's production systems on its own "
+    "authority, file actual patents, submit to actual journals, or claim peer-review. The wild-duck / "
+    "curiosity track is freedom of method, not freedom of fence — curiosity threads must still trace a "
+    "plausible link to MISSION.md, and the Librarian flags drift. The Director never overrides a "
+    "researcher's curiosity queue; that is a hard policy invariant enforced by `make check`. Mervin Kelly "
+    "is not on staff. Patience, taste, and mentorship are configured, not magic the configuration confers. "
+    "This is an aspiration with scaffolding, not a recreation of Bell Labs."
+)
+
+
+def emit_company(m: Manifest, out_path: Path) -> None:
+    metadata: dict[str, Any] = {}
+    if m.upstream is not None:
+        metadata["upstream"] = {
+            "repo": m.upstream.repo,
+            "commit": m.upstream.commit,
+            "license": m.upstream.license,
+        }
+    if m.affiliation is not None:
+        metadata["affiliation"] = m.affiliation
+    if m.usage_restriction is not None:
+        metadata["usage_restriction"] = m.usage_restriction.strip()
+
+    fm: dict[str, Any] = {
+        "schema": m.schema,
+        "slug": m.slug,
+        "name": m.name,
+        "description": m.description,
+        "version": m.version,
+        "license": m.license,
+        "authors": [{"name": a.name, "email": a.email} for a in m.authors],
+        "goals": m.goals,
+        "tags": m.tags,
+    }
+    if metadata:
+        fm["metadata"] = metadata
+
+    body_lines = [
+        f"# {m.name}",
+        "",
+        m.description,
+        "",
+    ]
+    if m.usage_restriction is not None:
+        body_lines += [
+            "## Usage restriction",
+            "",
+            m.usage_restriction.strip(),
+            "",
+        ]
+    body_lines += [
+        "## Boundaries",
+        "",
+        BOUNDARIES_BODY,
+        "",
+        "## Teams",
+        "",
+    ]
+    for slug, team in m.teams.items():
+        body_lines.append(f"- **{team.name}** (`teams/{slug}/TEAM.md`) — {team.description}")
+    body_lines.append("")
+    out_path.write_text(_frontmatter(fm) + "\n".join(body_lines) + "\n")
+
+
+def team_coordinator(m: Manifest) -> str | None:
+    """The single top-level agent (team=None) that coordinates the teams, if any.
+
+    Convention: if exactly one top-level agent exists, teams report to it.
+    With zero or multiple top-level agents, teams report directly to the company.
+    """
+    top_level = [s for s, a in m.agents.items() if a.team is None]
+    return top_level[0] if len(top_level) == 1 else None
+
+
+def emit_teams(m: Manifest, teams_root: Path) -> None:
+    team_agents: dict[str, list[str]] = {t: [] for t in m.teams}
+    for agent_slug, agent in m.agents.items():
+        if agent.team is None:
+            continue
+        team_agents[agent.team].append(agent_slug)
+
+    coordinator = team_coordinator(m)
+    reports_to = (
+        f"../../agents/{coordinator}/AGENTS.md" if coordinator else "../../COMPANY.md"
+    )
+
+    for slug, team in m.teams.items():
+        out_dir = teams_root / slug
+        out_dir.mkdir(parents=True, exist_ok=True)
+        fm = {
+            "slug": slug,
+            "name": team.name,
+            "description": team.description,
+            "reportsTo": reports_to,
+            "includes": [
+                f"../../agents/{a}/AGENTS.md" for a in sorted(team_agents[slug])
+            ],
+        }
+        body = f"\n# {team.name}\n\n{team.description}\n"
+        (out_dir / "TEAM.md").write_text(_frontmatter(fm) + body)
+
+
+def emit_agents(m: Manifest, agents_root: Path) -> None:
+    for slug, agent in m.agents.items():
+        out_dir = agents_root / slug
+        out_dir.mkdir(parents=True, exist_ok=True)
+        if agent.team is None:
+            reports_to = "../../COMPANY.md"
+            tags = ["bell-labs", "executive"]
+            sources = [{"mode": "port-original"}]
+        else:
+            reports_to = f"../../teams/{agent.team}/TEAM.md"
+            tags = ["bell-labs", agent.team]
+            if m.upstream is not None:
+                sources = [
+                    {
+                        "url": f"https://github.com/{m.upstream.repo}/tree/{m.upstream.commit}",
+                        "mode": "referenced",
+                    }
+                ]
+            else:
+                sources = [{"mode": "port-original"}]
+        fm = {
+            "slug": slug,
+            "name": agent.name,
+            "title": agent.title,
+            "reportsTo": reports_to,
+            "skills": list(agent.skills),
+            "tags": tags,
+            "metadata": {"sources": sources},
+        }
+        body = f"\n# {agent.name}\n\n{agent.description.strip()}\n"
+        (out_dir / "AGENTS.md").write_text(_frontmatter(fm) + body)
+
+
+def emit_skills(
+    m: Manifest,
+    content_hashes: dict[str, str],
+    skills_root: Path,
+) -> None:
+    for slug, skill in m.skills.items():
+        if skill.port_original:
+            # Hand-authored skill — its SKILL.md lives in the repo and must not be regenerated.
+            # Verify that the file exists so the build fails fast on missing port-original content.
+            out_dir = skills_root / slug
+            if not (out_dir / "SKILL.md").exists():
+                raise SystemExit(
+                    f"Port-original skill {slug!r} declared in manifest but "
+                    f"{out_dir / 'SKILL.md'} is missing. Author the file before running build."
+                )
+            continue
+        if not skill.upstream_path:
+            raise SystemExit(
+                f"Skill {slug!r} is not port-original but has no upstream_path declared in manifest."
+            )
+        if m.upstream is None:
+            raise SystemExit(
+                f"Skill {slug!r} has upstream_path but manifest has no upstream block."
+            )
+        out_dir = skills_root / slug
+        out_dir.mkdir(parents=True, exist_ok=True)
+        fm = {
+            "slug": slug,
+            "name": skill.name,
+            "description": skill.description,
+            "version": "0.1.0",
+            "metadata": {
+                "sources": [
+                    {
+                        "repo": m.upstream.repo,
+                        "commit": m.upstream.commit,
+                        "path": skill.upstream_path,
+                        "mode": "referenced",
+                        "contentHash": content_hashes[slug],
+                    }
+                ]
+            },
+        }
+        body = (
+            f"\n# {skill.name}\n\n"
+            f"> Skill content lives upstream at the path above (commit `{m.upstream.commit}`).\n"
+            f"> Pull the upstream file before invocation; do not edit this manifest in place.\n"
+        )
+        (out_dir / "SKILL.md").write_text(_frontmatter(fm) + body)
+
+
+def emit_org_chart_dot(m: Manifest) -> str:
+    lines = [
+        "digraph org {",
+        "  rankdir=TB;",
+        '  node [shape=box, style=rounded, fontname="Helvetica"];',
+        f'  "{m.slug}" [label="{m.name}", style="rounded,filled", fillcolor="#e8f0fe"];',
+    ]
+    coordinator = team_coordinator(m)
+
+    top_level = [(s, a) for s, a in m.agents.items() if a.team is None]
+    for agent_slug, agent in top_level:
+        lines.append(f'  "{agent_slug}" [label="{agent.name}", style="rounded,filled", fillcolor="#dcfce7"];')
+        lines.append(f'  "{m.slug}" -> "{agent_slug}";')
+
+    team_parent = coordinator if coordinator else m.slug
+    for team_slug, team in m.teams.items():
+        lines.append(f'  "{team_slug}" [label="{team.name}", fillcolor="#fef3c7", style="rounded,filled"];')
+        lines.append(f'  "{team_parent}" -> "{team_slug}";')
+
+    for agent_slug, agent in m.agents.items():
+        if agent.team is None:
+            continue
+        lines.append(f'  "{agent_slug}" [label="{agent.name}"];')
+        lines.append(f'  "{agent.team}" -> "{agent_slug}";')
+    lines.append("}")
+    return "\n".join(lines) + "\n"
+
+
+def render_org_chart(dot_text: str, out_png: Path) -> None:
+    """Render `dot_text` to a PNG via the `dot` CLI."""
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(
+        ["dot", "-Tpng", "-o", str(out_png)],
+        input=dot_text, text=True, check=True,
+    )
+
+
+def main() -> None:
+    m = load_manifest(ROOT / "manifest.yaml")
+    print(f"Building {m.slug} v{m.version} from manifest…")
+
+    upstream_skills = {k: v for k, v in m.skills.items() if not v.port_original}
+    port_original_skills = {k: v for k, v in m.skills.items() if v.port_original}
+
+    hashes: dict[str, str] = {}
+    if upstream_skills and m.upstream is None:
+        raise SystemExit(
+            "Manifest has no upstream block but skills without port_original=True were declared."
+        )
+    for slug, skill in upstream_skills.items():
+        if not skill.upstream_path:
+            raise SystemExit(f"Skill {slug!r} missing upstream_path")
+        content = fetch_upstream_file(m.upstream.repo, m.upstream.commit, skill.upstream_path)
+        hashes[slug] = compute_content_hash(content)
+        print(f"  hashed {slug} ← {skill.upstream_path}")
+
+    if port_original_skills:
+        print(f"  port-original skills (hand-authored): {sorted(port_original_skills)}")
+
+    emit_company(m, ROOT / "COMPANY.md")
+    emit_teams(m, ROOT / "teams")
+    emit_agents(m, ROOT / "agents")
+    emit_skills(m, hashes, ROOT / "skills")
+
+    dot = emit_org_chart_dot(m)
+    (ROOT / "images").mkdir(exist_ok=True)
+    (ROOT / "images" / "org-chart.dot").write_text(dot)
+    try:
+        render_org_chart(dot, ROOT / "images" / "org-chart.png")
+    except FileNotFoundError:
+        print("  (skipping org-chart.png render — `dot` CLI not installed)")
+
+    print("Build complete.")
+
+
+if __name__ == "__main__":
+    main()

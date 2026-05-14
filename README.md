@@ -7,7 +7,7 @@
 [![CI](https://github.com/stubbi/companies/actions/workflows/ci.yml/badge.svg)](https://github.com/stubbi/companies/actions/workflows/ci.yml)
 [![License: MIT (wrapper)](https://img.shields.io/badge/wrapper-MIT-yellow.svg)](LICENSE)
 [![Powered by Paperclip](https://img.shields.io/badge/powered_by-Paperclip-2563eb)](https://github.com/paperclipai/paperclip)
-[![Companies](https://img.shields.io/badge/companies-2-22c55e)](#companies)
+[![Companies](https://img.shields.io/badge/companies-3-22c55e)](#companies)
 
 </div>
 
@@ -107,6 +107,29 @@ The CEO handles intake triage, pipeline orchestration, checkpoint coordination, 
 > **Boundaries.** Nothing in `academic-research` constitutes peer-reviewed scholarship on its own. These agents draft research artifacts (literature searches, methodology blueprints, outlines, drafts, review reports, formatted manuscripts) for review by a qualified human researcher. They do not submit to journals, sign authorship statements, make editorial decisions, or attest to research integrity on the user's behalf. See the [company's Boundaries section](./academic-research/README.md#boundaries) for full detail.
 
 > **Community port. Not affiliated with or endorsed by Imbad0202 or the ARS authors.**
+
+### [Bell Labs](./bell-labs)
+
+> 10-agent industrial-research lab modeled on Bell Labs (1925–1984). Original synthesis — no upstream port. Separated patron (CEO) and instigator (Director of Research); five-archetype researcher coverage plus boundary roles (Systems Engineer, Librarian) that every modern Bell Labs imitator has dropped. Two-track operation (directed + curiosity, curiosity protected by policy); forced cross-archetype traversal encoded as policy via the Hallway, weekly Colloquium, and Director's walks. Output is the Technical Memorandum.
+
+```bash
+npx companies.sh add stubbi/companies/bell-labs
+```
+
+| | |
+|---|---|
+| **Agents** | 10 (CEO + Director + 8 researchers across 4 teams) |
+| **Skills** | 22 port-original (no upstream) |
+| **License** | MIT |
+| **Source** | Original synthesis. Conceptual references in [NOTICE](./bell-labs/NOTICE). |
+
+The CEO is patron, not boss — onboarding interview, mission protection, intake routing, monthly summaries. The Director of Research is the lab's taste organ — daily Hallway walks, Pierce-style instigation questions (rate-limited), continuation reviews. Researchers cover theorist, experimentalist, inventor, translator, materials/empiricist, mathematician (25%-time consultant), plus a Systems Engineer who brokers problems from the user's real "network" and a Librarian who pushes prior memoranda into active threads. Every researcher runs a Directed queue and a self-owned Curiosity queue; the curiosity queue is protected by policy and `make check`.
+
+[Company README →](./bell-labs/README.md)
+
+> **Boundaries.** This is a research lab. It drafts memos, prototypes, proposals, and handoff docs *for human review*. It does not ship to the user's production systems on its own authority, file actual patents, submit to actual journals, or claim peer-review. The wild-duck / curiosity track is freedom of *method*, not freedom of *fence*. See the [company's Boundaries section](./bell-labs/README.md#boundaries) for full detail.
+
+> **Name homage. Not affiliated with or endorsed by Nokia / Nokia Bell Labs.** "Bell Labs" is a trademark of Nokia.
 
 ---
 

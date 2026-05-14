@@ -1,0 +1,22 @@
+Bell Labs Agent Company
+=======================
+
+"Bell Labs" in this Agent Company's name is a homage to the historical
+Bell Telephone Laboratories (1925–1984). This package is not affiliated
+with or endorsed by Nokia or Nokia Bell Labs, current trademark holder
+of the "Bell Labs" name. Use of the name is intended as a research-
+history reference, not as a claim of provenance.
+
+Conceptual sources synthesized into this Agent Company:
+  - Jon Gertner, *The Idea Factory* (2012)
+  - Mervin Kelly, "The Bell Telephone Laboratories — An Example
+    of an Institute of Creative Technology" (1950)
+  - Various secondary literature on Bell Labs operations
+    (see docs/superpowers/specs/2026-05-14-bell-labs-company-design.md
+    for the full reference list)
+
+This is an opinionated translation of Bell Labs' operating principles
+into an agentic structure — an aspiration with scaffolding, not a
+recreation. The hard parts of Bell Labs (taste, patience, mentorship)
+are exactly where current agents are weakest. The structural choices
+here try to encode those properties as policy, not hope.
