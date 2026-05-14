@@ -1,3 +1,6 @@
+# Minimal fixture for tests. Slug is deliberately generic — this is not the
+# real bell-labs manifest. Deliberately has no `upstream:` block so build/check
+# tests can exercise the no-upstream code path.
 schema: agentcompanies/v1
 slug: test-co
 name: Test Co
