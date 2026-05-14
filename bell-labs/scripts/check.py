@@ -63,6 +63,79 @@ def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+SHARED_RESEARCHER_CORE = {
+    "technical-memorandum",
+    "hallway-traversal",
+    "two-track-operation",
+    "colloquium-participation",
+}
+
+CEO_REQUIRED_SKILLS = {
+    "onboarding-mission-interview", "intake-triage", "patron-budget",
+    "escalation-routing", "monthly-summary",
+}
+
+
+def check_skill_files_present(package_root: Path, manifest: dict) -> None:
+    """Every manifest skill has a skills/<slug>/SKILL.md file."""
+    skills_dir = package_root / "skills"
+    for slug in manifest.get("skills", {}):
+        path = skills_dir / slug / "SKILL.md"
+        if not path.exists():
+            raise ValidationError(f"manifest skill {slug!r} has no SKILL.md at {path}")
+
+
+def check_agent_skill_references(manifest: dict) -> None:
+    """Every skill listed under an agent must exist in manifest.skills."""
+    declared = set(manifest.get("skills", {}))
+    for agent_slug, agent in manifest.get("agents", {}).items():
+        for skill in agent.get("skills", []):
+            if skill not in declared:
+                raise ValidationError(
+                    f"agent {agent_slug!r}: references undeclared skill {skill!r}"
+                )
+
+
+def check_team_assignments(manifest: dict) -> None:
+    """Every agent's team: value must be a declared team slug."""
+    declared = set(manifest.get("teams", {}))
+    for agent_slug, agent in manifest.get("agents", {}).items():
+        team = agent.get("team")
+        if team is not None and team not in declared:
+            raise ValidationError(
+                f"agent {agent_slug!r}: team {team!r} is not declared in manifest.teams"
+            )
+
+
+def check_shared_researcher_core(manifest: dict) -> None:
+    """Every agent with a team: field must list all four shared core skills."""
+    for slug, agent in manifest.get("agents", {}).items():
+        if "team" not in agent:
+            continue  # company-level wise heads (CEO, Director) skip this check
+        missing = SHARED_RESEARCHER_CORE - set(agent.get("skills", []))
+        if missing:
+            raise ValidationError(
+                f"agent {slug!r}: missing shared researcher core skills "
+                f"{sorted(missing)}; every researcher must reference all of "
+                f"{sorted(SHARED_RESEARCHER_CORE)}"
+            )
+
+
+def check_ceo_skills(manifest: dict) -> None:
+    """The CEO has exactly the 5 patron skills — no shared researcher core."""
+    ceo = manifest.get("agents", {}).get("ceo")
+    if ceo is None:
+        return  # not bell-labs; skip
+    skills = set(ceo.get("skills", []))
+    if skills != CEO_REQUIRED_SKILLS:
+        extra = skills - CEO_REQUIRED_SKILLS
+        missing = CEO_REQUIRED_SKILLS - skills
+        raise ValidationError(
+            f"CEO skills mismatch — missing {sorted(missing)} extra {sorted(extra)}; "
+            "CEO is patron-only, no shared researcher core."
+        )
+
+
 def check_content_hashes(package_root: Path) -> None:
     skills_dir = package_root / "skills"
     if not skills_dir.exists():
@@ -102,10 +175,19 @@ def main() -> int:
         # 3. Content-hash freshness (network — slow)
         check_content_hashes(ROOT)
 
+        # 4. Bell-Labs-specific invariants
+        with open(ROOT / "manifest.yaml") as f:
+            manifest = yaml.safe_load(f)
+        check_skill_files_present(ROOT, manifest)
+        check_agent_skill_references(manifest)
+        check_team_assignments(manifest)
+        check_shared_researcher_core(manifest)
+        check_ceo_skills(manifest)
+
     except ValidationError as e:
         print(f"FAIL: {e}", file=sys.stderr)
         return 1
-    print("OK: schema, cross-references, content hashes all valid.")
+    print("OK: schema, cross-references, content hashes, bell-labs invariants all valid.")
     return 0
 
 
