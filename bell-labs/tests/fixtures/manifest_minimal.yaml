@@ -1,0 +1,35 @@
+schema: agentcompanies/v1
+slug: test-co
+name: Test Co
+description: minimal fixture for testing
+version: 0.1.0
+license: MIT
+authors:
+  - name: Jannes Stubbemann
+    email: jannes@paperclip.inc
+goals: [test]
+tags: [test]
+
+teams:
+  team-a:
+    name: Team A
+    description: a team
+
+agents:
+  alpha:
+    name: Alpha
+    title: Coordinator
+    description: lone top-level coordinator
+    skills: [skill-port]
+  beta:
+    name: Beta
+    title: Worker
+    team: team-a
+    description: team-a worker
+    skills: [skill-port]
+
+skills:
+  skill-port:
+    name: Port Skill
+    description: a hand-authored skill
+    port_original: true
