@@ -1,7 +1,7 @@
 ---
 slug: experiment-design
 name: Experiment Design
-description: Turn a concrete, falsifiable question into a pre-registered experiment; run it; write the TM regardless of outcome. Failure TMs are the highest-value TMs.
+description: Turn a question into a falsifiable experiment (code, simulation, ablation, controlled test). Pre-register the prediction in a Hallway entry before running; result becomes a TM regardless of outcome.
 version: 0.1.0
 metadata:
   sources:

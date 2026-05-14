@@ -1,7 +1,7 @@
 ---
 slug: empirical-probe
 name: Empirical Probe
-description: Survey datasets, libraries, prior art, and instruments to characterize what already exists; output is a Materials TM plus a curated source list pushed to the Librarian.
+description: Survey what's already out there (datasets, libraries, prior art, instruments) and probe specific empirical questions to characterize the "material" being worked on. Output is the materials TM plus a curated source list pushed to the Librarian.
 version: 0.1.0
 metadata:
   sources:
