@@ -1,0 +1,17 @@
+[project]
+name = "cheaptalk"
+version = "0.1.0a0"
+description = "Typed cheap-talk pre-play round for multi-agent runtimes (Bell Labs Cycle 1)."
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["cheaptalk*"]
