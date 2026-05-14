@@ -1,10 +1,10 @@
 .PHONY: build check test clean
 
 build:
-	python -m scripts.build
+	python3 -m scripts.build
 
 check:
-	python -m scripts.check
+	python3 -m scripts.check
 
 test:
 	pytest -v
