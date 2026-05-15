@@ -59,9 +59,30 @@ def list_plugin_skills(plugin: str) -> list[str]:
     return sorted(skills)
 
 
+# Word-level overrides applied after kebab → Title Case. Keys are lowercase
+# tokens produced by the split; values are the desired display form.
+TITLE_OVERRIDES = {
+    "ai": "AI",
+    "aia": "AIA",
+    "dpa": "DPA",
+    "dsar": "DSAR",
+    "fto": "FTO",
+    "ip": "IP",
+    "irac": "IRAC",
+    "msa": "MSA",
+    "nda": "NDA",
+    "oc": "OC",
+    "oss": "OSS",
+    "pia": "PIA",
+    "qa": "Q&A",
+    "saas": "SaaS",
+}
+
+
 def title_from_slug(slug: str) -> str:
-    """Convert kebab-case to Title Case."""
-    return " ".join(w.capitalize() for w in slug.split("-"))
+    """Convert kebab-case to Title Case with legal/tech acronym overrides."""
+    tokens = slug.split("-")
+    return " ".join(TITLE_OVERRIDES.get(tok, tok.capitalize()) for tok in tokens)
 
 
 def first_sentence(description: str) -> str:
