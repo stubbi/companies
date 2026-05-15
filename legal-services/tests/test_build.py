@@ -76,3 +76,37 @@ def test_emit_company_produces_valid_yaml_frontmatter(tmp_path):
     # Boundaries paragraph must be legal-flavored (attorney review, not investment advice).
     assert "attorney" in body.lower()
     assert "investment" not in body.lower()
+
+
+from scripts.build import emit_teams, Agent
+
+
+def test_emit_teams_creates_one_file_per_team_no_coordinator(tmp_path):
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    emit_teams(m, tmp_path)
+    team_path = tmp_path / "team-a" / "TEAM.md"
+    assert team_path.exists()
+    text = team_path.read_text()
+    fm_end = text.find("\n---\n", 4)
+    fm = yaml.safe_load(text[4:fm_end])
+    assert fm["slug"] == "team-a"
+    assert fm["includes"] == ["../../agents/alpha/AGENTS.md"]
+    assert fm["reportsTo"] == "../../COMPANY.md"
+
+
+def test_emit_teams_reports_to_coordinator_when_single_top_level_agent(tmp_path):
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    m.agents["ceo"] = Agent(
+        name="CEO",
+        title="Chief Executive Officer",
+        description="Top-level coordinator.",
+        skills=["intake-triage"],
+        team=None,
+    )
+    emit_teams(m, tmp_path)
+    fm_text = (tmp_path / "team-a" / "TEAM.md").read_text()
+    fm_end = fm_text.find("\n---\n", 4)
+    fm = yaml.safe_load(fm_text[4:fm_end])
+    assert fm["reportsTo"] == "../../agents/ceo/AGENTS.md"
