@@ -150,3 +150,56 @@ def test_emit_agents_top_level_agent_is_port_original(tmp_path):
     assert fm["reportsTo"] == "../../COMPANY.md"
     assert fm["metadata"]["sources"] == [{"mode": "port-original"}]
     assert fm["tags"] == ["legal", "executive"]
+
+
+from scripts.build import emit_skills, Skill
+
+
+def test_emit_skills_upstream_referenced_writes_thin_pointer(tmp_path):
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    hashes = {"alpha-legal--review": "abc123"}
+    emit_skills(m, content_hashes=hashes, skills_root=tmp_path)
+    skill_path = tmp_path / "alpha-legal--review" / "SKILL.md"
+    assert skill_path.exists()
+    text = skill_path.read_text()
+    fm_end = text.find("\n---\n", 4)
+    fm = yaml.safe_load(text[4:fm_end])
+    assert fm["slug"] == "alpha-legal--review"
+    src = fm["metadata"]["sources"][0]
+    assert src["repo"] == "example/upstream"
+    assert src["commit"] == "deadbeef"
+    assert src["path"] == "alpha-legal/skills/review/SKILL.md"
+    assert src["mode"] == "referenced"
+    assert src["contentHash"] == "abc123"
+
+
+def test_emit_skills_port_original_preserved(tmp_path):
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    m.skills["intake-triage"] = Skill(
+        name="Intake Triage",
+        description="Hand-authored.",
+        port_original=True,
+    )
+    out_dir = tmp_path / "intake-triage"
+    out_dir.mkdir(parents=True)
+    original = "---\nslug: intake-triage\nname: Intake Triage\ndescription: Hand-authored.\n---\nbody\n"
+    (out_dir / "SKILL.md").write_text(original)
+
+    emit_skills(m, content_hashes={"alpha-legal--review": "x"}, skills_root=tmp_path)
+    assert (out_dir / "SKILL.md").read_text() == original
+
+
+def test_emit_skills_port_original_missing_file_raises(tmp_path):
+    import pytest
+
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    m.skills["intake-triage"] = Skill(
+        name="Intake Triage",
+        description="Hand-authored.",
+        port_original=True,
+    )
+    with pytest.raises(SystemExit, match="(?i)port-original"):
+        emit_skills(m, content_hashes={"alpha-legal--review": "x"}, skills_root=tmp_path)

@@ -242,3 +242,45 @@ def emit_agents(m: Manifest, agents_root: Path) -> None:
         }
         body = f"\n# {agent.name}\n\n{agent.description.strip()}\n"
         (out_dir / "AGENTS.md").write_text(_frontmatter(fm) + body)
+
+
+def emit_skills(
+    m: Manifest,
+    content_hashes: dict[str, str],
+    skills_root: Path,
+) -> None:
+    for slug, skill in m.skills.items():
+        out_dir = skills_root / slug
+        if skill.port_original:
+            # Hand-authored skill — must exist; build never regenerates it.
+            if not (out_dir / "SKILL.md").exists():
+                raise SystemExit(
+                    f"Port-original skill {slug!r} declared in manifest but "
+                    f"{out_dir / 'SKILL.md'} is missing. Author the file before running build."
+                )
+            continue
+        upstream_path = upstream_path_for_skill(slug)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        fm = {
+            "slug": slug,
+            "name": skill.name,
+            "description": skill.description,
+            "version": "0.1.0",
+            "metadata": {
+                "sources": [
+                    {
+                        "repo": m.upstream.repo,
+                        "commit": m.upstream.commit,
+                        "path": upstream_path,
+                        "mode": "referenced",
+                        "contentHash": content_hashes[slug],
+                    }
+                ]
+            },
+        }
+        body = (
+            f"\n# {skill.name}\n\n"
+            f"> Skill content lives upstream at the path above (commit `{m.upstream.commit}`).\n"
+            f"> Pull the upstream file before invocation; do not edit this manifest in place.\n"
+        )
+        (out_dir / "SKILL.md").write_text(_frontmatter(fm) + body)
