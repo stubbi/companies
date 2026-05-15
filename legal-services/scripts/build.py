@@ -99,5 +99,18 @@ def compute_content_hash(content: bytes) -> str:
     return hashlib.sha256(content).hexdigest()
 
 
+def upstream_path_for_skill(slug: str) -> str:
+    """Derive the upstream SKILL.md path from a namespaced manifest slug.
+
+    Slug format: "<plugin>--<bare-skill>"; the bare-skill portion may itself
+    contain single dashes (e.g., "use-case-triage"), so we split on the FIRST
+    occurrence of the namespace separator only.
+    """
+    if NAMESPACE_SEP not in slug:
+        raise ValueError(f"skill slug {slug!r} is not namespaced (missing {NAMESPACE_SEP!r})")
+    plugin, bare = slug.split(NAMESPACE_SEP, 1)
+    return f"{plugin}/skills/{bare}/SKILL.md"
+
+
 def _frontmatter(data: dict[str, Any]) -> str:
     return "---\n" + yaml.safe_dump(data, sort_keys=False, allow_unicode=True) + "---\n"
