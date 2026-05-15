@@ -284,3 +284,77 @@ def emit_skills(
             f"> Pull the upstream file before invocation; do not edit this manifest in place.\n"
         )
         (out_dir / "SKILL.md").write_text(_frontmatter(fm) + body)
+
+
+def emit_org_chart_dot(m: Manifest) -> str:
+    lines = [
+        "digraph org {",
+        "  rankdir=TB;",
+        '  node [shape=box, style=rounded, fontname="Helvetica"];',
+        f'  "{m.slug}" [label="{m.name}", style="rounded,filled", fillcolor="#e8f0fe"];',
+    ]
+    coordinator = team_coordinator(m)
+
+    top_level = [(s, a) for s, a in m.agents.items() if a.team is None]
+    for agent_slug, agent in top_level:
+        lines.append(
+            f'  "{agent_slug}" [label="{agent.name}", style="rounded,filled", fillcolor="#dcfce7"];'
+        )
+        lines.append(f'  "{m.slug}" -> "{agent_slug}";')
+
+    team_parent = coordinator if coordinator else m.slug
+    for team_slug, team in m.teams.items():
+        lines.append(
+            f'  "{team_slug}" [label="{team.name}", fillcolor="#fef3c7", style="rounded,filled"];'
+        )
+        lines.append(f'  "{team_parent}" -> "{team_slug}";')
+
+    for agent_slug, agent in m.agents.items():
+        if agent.team is None:
+            continue
+        lines.append(f'  "{agent_slug}" [label="{agent.name}"];')
+        lines.append(f'  "{agent.team}" -> "{agent_slug}";')
+    lines.append("}")
+    return "\n".join(lines) + "\n"
+
+
+def render_org_chart(dot_text: str, out_png: Path) -> None:
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(
+        ["dot", "-Tpng", "-o", str(out_png)],
+        input=dot_text, text=True, check=True,
+    )
+
+
+def main() -> None:
+    m = load_manifest(ROOT / "manifest.yaml")
+    print(f"Building {m.slug} v{m.version} from manifest…")
+
+    upstream_skills = {k: v for k, v in m.skills.items() if not v.port_original}
+    port_original_skills = {k: v for k, v in m.skills.items() if v.port_original}
+
+    hashes: dict[str, str] = {}
+    for slug in upstream_skills:
+        path = upstream_path_for_skill(slug)
+        content = fetch_upstream_file(m.upstream.repo, m.upstream.commit, path)
+        hashes[slug] = compute_content_hash(content)
+        print(f"  hashed {slug} ← {path}")
+
+    if port_original_skills:
+        print(f"  port-original skills (hand-authored): {sorted(port_original_skills)}")
+
+    emit_company(m, ROOT / "COMPANY.md")
+    emit_teams(m, ROOT / "teams")
+    emit_agents(m, ROOT / "agents")
+    emit_skills(m, hashes, ROOT / "skills")
+
+    dot = emit_org_chart_dot(m)
+    (ROOT / "images").mkdir(exist_ok=True)
+    (ROOT / "images" / "org-chart.dot").write_text(dot)
+    render_org_chart(dot, ROOT / "images" / "org-chart.png")
+
+    print("Build complete.")
+
+
+if __name__ == "__main__":
+    main()

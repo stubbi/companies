@@ -203,3 +203,34 @@ def test_emit_skills_port_original_missing_file_raises(tmp_path):
     )
     with pytest.raises(SystemExit, match="(?i)port-original"):
         emit_skills(m, content_hashes={"alpha-legal--review": "x"}, skills_root=tmp_path)
+
+
+from scripts.build import emit_org_chart_dot
+
+
+def test_org_chart_dot_contains_company_team_agent_edges():
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    dot = emit_org_chart_dot(m)
+    assert "digraph" in dot
+    assert '"team-a"' in dot
+    assert '"alpha"' in dot
+    assert '"team-a" -> "alpha"' in dot
+    assert f'"{m.slug}" -> "team-a"' in dot
+
+
+def test_org_chart_with_single_top_level_agent_routes_teams_through_coordinator():
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    m.agents["ceo"] = Agent(
+        name="CEO",
+        title="CEO",
+        description="d",
+        skills=["intake-triage"],
+        team=None,
+    )
+    dot = emit_org_chart_dot(m)
+    assert f'"{m.slug}" -> "ceo"' in dot
+    assert '"ceo" -> "team-a"' in dot
+    assert f'"{m.slug}" -> "team-a"' not in dot
+    assert '"None"' not in dot
