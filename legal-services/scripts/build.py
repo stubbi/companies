@@ -123,3 +123,54 @@ def fetch_upstream_file(repo: str, commit: str, path: str) -> bytes:
         check=True, capture_output=True, text=True,
     )
     return base64.b64decode(out.stdout.strip())
+
+
+BOUNDARIES_BODY = (
+    "Nothing in this package constitutes legal advice. Every output is a draft\n"
+    "for attorney review — not a legal conclusion, not a substitute for a lawyer.\n"
+    "These agents draft work product (memos, redlines, claim charts, deposition\n"
+    "outlines, review reports, policies, classifications) for review by a\n"
+    "qualified attorney. They do not file briefs, send demand letters, issue\n"
+    "legal holds, or take positions on behalf of any party; every output is\n"
+    "staged for human sign-off. The attorney using the package — not the\n"
+    "package, and not Anthropic — is responsible for the legal positions taken\n"
+    "in their work product."
+)
+
+
+def emit_company(m: Manifest, out_path: Path) -> None:
+    fm = {
+        "schema": m.schema,
+        "slug": m.slug,
+        "name": m.name,
+        "description": m.description,
+        "version": m.version,
+        "license": m.license,
+        "authors": [{"name": a.name, "email": a.email} for a in m.authors],
+        "goals": m.goals,
+        "tags": m.tags,
+        "metadata": {
+            "upstream": {
+                "repo": m.upstream.repo,
+                "commit": m.upstream.commit,
+                "license": m.upstream.license,
+            },
+            "affiliation": m.affiliation,
+        },
+    }
+    body_lines = [
+        f"# {m.name}",
+        "",
+        m.description,
+        "",
+        "## Boundaries",
+        "",
+        BOUNDARIES_BODY,
+        "",
+        "## Teams",
+        "",
+    ]
+    for slug, team in m.teams.items():
+        body_lines.append(f"- **{team.name}** (`teams/{slug}/TEAM.md`) — {team.description}")
+    body_lines.append("")
+    out_path.write_text(_frontmatter(fm) + "\n".join(body_lines) + "\n")

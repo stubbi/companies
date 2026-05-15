@@ -50,3 +50,29 @@ def test_upstream_path_for_skill_double_dashed_bare_works():
         upstream_path_for_skill("ai-governance-legal--use-case-triage")
         == "ai-governance-legal/skills/use-case-triage/SKILL.md"
     )
+
+
+from scripts.build import emit_company
+
+
+def test_emit_company_produces_valid_yaml_frontmatter(tmp_path):
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    out_path = tmp_path / "COMPANY.md"
+    emit_company(m, out_path)
+
+    text = out_path.read_text()
+    assert text.startswith("---\n")
+    fm_end = text.find("\n---\n", 4)
+    assert fm_end > 0
+    fm = yaml.safe_load(text[4:fm_end])
+    assert fm["schema"] == "agentcompanies/v1"
+    assert fm["slug"] == "test-co"
+    assert fm["license"] == "Apache-2.0"
+    assert fm["metadata"]["upstream"]["commit"] == "deadbeef"
+
+    body = text[fm_end + len("\n---\n"):]
+    assert "Test Co" in body
+    # Boundaries paragraph must be legal-flavored (attorney review, not investment advice).
+    assert "attorney" in body.lower()
+    assert "investment" not in body.lower()
