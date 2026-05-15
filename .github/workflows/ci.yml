@@ -20,6 +20,8 @@ jobs:
         company:
           - financial-services
           - academic-research
+          - bell-labs
+          - legal-services
     defaults:
       run:
         working-directory: ${{ matrix.company }}
@@ -52,6 +54,8 @@ jobs:
         company:
           - financial-services
           - academic-research
+          - bell-labs
+          - legal-services
     defaults:
       run:
         working-directory: ${{ matrix.company }}
