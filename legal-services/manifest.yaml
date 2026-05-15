@@ -1,0 +1,674 @@
+schema: agentcompanies/v1
+slug: legal-services
+name: Legal Services
+description: 13-agent legal company — commercial, regulatory, IP, disputes, and legal-education plugins from anthropics/claude-for-legal, plus a CEO that handles intake, cross-practice coordination, escalation, and weekly summaries. Every output is staged for attorney review.
+version: 0.1.0
+license: Apache-2.0
+authors:
+  - name: Jannes Stubbemann
+    email: jannes@paperclip.inc
+goals:
+  - Draft legal work product (memos, redlines, claim charts, deposition outlines, review reports, policies, classifications) for attorney review.
+  - Cover the 12 practice-area plugins Anthropic shipped — commercial, corporate, employment, privacy, product, regulatory, AI governance, IP, litigation, plus law-student / legal-clinic / legal-builder-hub on the education side.
+  - Stage every output for attorney sign-off — no agent here files briefs, sends demand letters, issues legal holds, or takes legal positions on behalf of any party.
+tags: [legal, in-house-counsel, commercial, privacy, regulatory, litigation, ip, employment, ai-governance]
+
+upstream:
+  repo: anthropics/claude-for-legal
+  commit: 9cecd91b0f26f732d18315afc3c9bb5ff99e0fbb
+  license: Apache-2.0
+
+affiliation: "Community port. Not affiliated with or endorsed by Anthropic."
+
+teams:
+  commercial-transactions:
+    name: Commercial & Transactions
+    description: Day-to-day deal docs and workforce contracts — commercial agreements, M&A diligence, employment.
+  regulatory-compliance:
+    name: Regulatory & Compliance
+    description: Rule-tracking and compliance posture — privacy, AI governance, regulatory feeds, product launches.
+  ip-disputes:
+    name: IP & Disputes
+    description: Offensive and defensive workstreams — IP clearance / portfolio / enforcement and full litigation lifecycle.
+  academy-tooling:
+    name: Legal Academy & Tooling
+    description: Education and meta-tooling — law-school work, clinic operations, and discovery / evaluation of community legal skills.
+
+agents:
+  ceo:
+    name: CEO
+    title: Chief Executive Officer
+    description: |
+      Front-of-house coordinator for the legal-services team. Receives incoming
+      matters, classifies them, routes to the right practice area, and orchestrates
+      handoffs when work spans practice areas (e.g., an M&A diligence run touching
+      IP, employment, and privacy). Handles escalation routing when a specialist
+      hits a blocker, and produces the company-level weekly summary. Does not run
+      skills the specialists own — no contract redlines, claim charts, DSARs, or
+      policy drafts; the CEO coordinates, the practices execute. This role is a
+      port-time addition; upstream `anthropics/claude-for-legal` does not model
+      an org head.
+    skills:
+      - intake-triage
+      - cross-practice-coordination
+      - escalation-routing
+      - weekly-summary
+
+  commercial-legal:
+    name: Commercial Counsel
+    title: Commercial Contracts Specialist
+    team: commercial-transactions
+    description: |
+      Wraps the `commercial-legal` plugin. Reviews vendor agreements, NDAs, and
+      SaaS subscriptions against the team's playbook; tracks renewals and cancel-by
+      deadlines; routes escalations to the right approver; translates reviews into
+      summaries business stakeholders will actually read. Output is staged for
+      attorney sign-off before anything goes back to a counterparty.
+    skills: [commercial-legal--amendment-history, commercial-legal--cold-start-interview, commercial-legal--customize, commercial-legal--escalation-flagger, commercial-legal--matter-workspace, commercial-legal--nda-review, commercial-legal--renewal-tracker, commercial-legal--review, commercial-legal--review-proposals, commercial-legal--saas-msa-review, commercial-legal--stakeholder-summary, commercial-legal--vendor-agreement-review]
+
+  corporate-legal:
+    name: Corporate Counsel
+    title: M&A and Corporate Specialist
+    team: commercial-transactions
+    description: |
+      Wraps the `corporate-legal` plugin. Runs M&A diligence at scale with cited
+      tabular review; builds disclosure schedules and closing checklists; drafts
+      board consents and minutes in house format; tracks entity compliance
+      deadlines across jurisdictions; manages phased post-closing integration.
+      Output is staged for attorney review.
+    skills: [corporate-legal--ai-tool-handoff, corporate-legal--board-minutes, corporate-legal--closing-checklist, corporate-legal--cold-start-interview, corporate-legal--customize, corporate-legal--deal-team-summary, corporate-legal--diligence-issue-extraction, corporate-legal--entity-compliance, corporate-legal--integration-management, corporate-legal--material-contract-schedule, corporate-legal--matter-workspace, corporate-legal--tabular-review, corporate-legal--written-consent]
+
+  employment-legal:
+    name: Employment Counsel
+    title: Employment Law Specialist
+    team: commercial-transactions
+    description: |
+      Wraps the `employment-legal` plugin. Reviews hires and terminations for
+      jurisdiction-specific risk; classifies workers against the controlling
+      state test; tracks open leaves and FMLA / CFRA / PFL / ADA deadlines;
+      opens and summarizes internal investigations; drafts policies with state
+      supplements; plans international expansion (EOR vs. entity). Output is
+      staged for attorney sign-off.
+    skills: [employment-legal--cold-start-interview, employment-legal--customize, employment-legal--expansion-kickoff, employment-legal--expansion-update, employment-legal--handbook-updates, employment-legal--hiring-review, employment-legal--internal-investigation, employment-legal--international-expansion, employment-legal--investigation-add, employment-legal--investigation-memo, employment-legal--investigation-open, employment-legal--investigation-query, employment-legal--investigation-summary, employment-legal--leave-tracker, employment-legal--log-leave, employment-legal--matter-workspace, employment-legal--policy-drafting, employment-legal--termination-review, employment-legal--wage-hour-qa, employment-legal--worker-classification]
+
+  privacy-legal:
+    name: Privacy Counsel
+    title: Privacy & Data Protection Specialist
+    team: regulatory-compliance
+    description: |
+      Wraps the `privacy-legal` plugin. Triages processing activities, generates
+      PIAs, reviews DPAs as controller or processor, drafts DSAR responses within
+      statutory timelines, and monitors policy drift against practice. Output is
+      staged for attorney review.
+    skills: [privacy-legal--cold-start-interview, privacy-legal--customize, privacy-legal--dpa-review, privacy-legal--dsar-response, privacy-legal--matter-workspace, privacy-legal--pia-generation, privacy-legal--policy-monitor, privacy-legal--reg-gap-analysis, privacy-legal--use-case-triage]
+
+  ai-governance-legal:
+    name: AI Governance Counsel
+    title: AI Governance Specialist
+    team: regulatory-compliance
+    description: |
+      Wraps the `ai-governance-legal` plugin. Classifies proposed AI use cases
+      against the registry, runs Algorithmic Impact Assessments across the
+      regimes in scope, reviews vendor AI terms (training-on-data, liability,
+      model-change, policy gaps), diffs new AI regulations against current
+      governance posture, and sweeps saved AIAs / triage results / vendor reviews
+      for AI-policy drift. Output is staged for attorney review.
+    skills: [ai-governance-legal--ai-inventory, ai-governance-legal--aia-generation, ai-governance-legal--cold-start-interview, ai-governance-legal--customize, ai-governance-legal--matter-workspace, ai-governance-legal--policy-monitor, ai-governance-legal--policy-starter, ai-governance-legal--reg-gap-analysis, ai-governance-legal--use-case-triage, ai-governance-legal--vendor-ai-review]
+
+  regulatory-legal:
+    name: Regulatory Counsel
+    title: Regulatory Affairs Specialist
+    team: regulatory-compliance
+    description: |
+      Wraps the `regulatory-legal` plugin. Watches regulatory feeds and writes
+      the Monday-morning digest; diffs specific regulatory changes against the
+      indexed policy library; tracks open gaps; drafts marked-up policy
+      redrafts that close those gaps (proposals for the policy owner, not
+      direct edits to source documents); manages open NPRM comment periods.
+      Output is staged for attorney review.
+    skills: [regulatory-legal--cold-start-interview, regulatory-legal--comments, regulatory-legal--customize, regulatory-legal--gap-surfacer, regulatory-legal--gaps, regulatory-legal--matter-workspace, regulatory-legal--policy-diff, regulatory-legal--policy-redraft, regulatory-legal--reg-feed-watcher]
+
+  product-legal:
+    name: Product Counsel
+    title: Product Launch Specialist
+    team: regulatory-compliance
+    description: |
+      Wraps the `product-legal` plugin. Reviews product launches against the
+      team's risk calibration, answers "is this a problem?" Slack questions in
+      minutes, checks marketing copy for claims that need substantiation, and
+      flags upcoming launches that need legal eyes before anyone asks. Output
+      is staged for attorney review.
+    skills: [product-legal--cold-start-interview, product-legal--customize, product-legal--feature-risk-assessment, product-legal--is-this-a-problem, product-legal--launch-review, product-legal--marketing-claims-review, product-legal--matter-workspace]
+
+  ip-legal:
+    name: IP Counsel
+    title: Intellectual Property Specialist
+    team: ip-disputes
+    description: |
+      Wraps the `ip-legal` plugin. Runs first-pass trademark clearance and
+      freedom-to-operate triage; drafts and triages cease-and-desist letters;
+      drafts DMCA takedowns, triages received ones, and drafts §512(g) counter-
+      notices; reviews open-source license compliance; reviews IP clauses
+      (assignment, ownership, license grants, warranties, indemnities);
+      tracks the IP portfolio (registrations, renewals, maintenance fees).
+      Output is a triage / draft — not an opinion — staged for attorney review.
+    skills: [ip-legal--cease-desist, ip-legal--clearance, ip-legal--cold-start-interview, ip-legal--customize, ip-legal--fto-triage, ip-legal--infringement-triage, ip-legal--invention-intake, ip-legal--ip-clause-review, ip-legal--matter-workspace, ip-legal--oss-review, ip-legal--portfolio, ip-legal--takedown]
+
+  litigation-legal:
+    name: Litigation Counsel
+    title: Litigation Portfolio Manager
+    team: ip-disputes
+    description: |
+      Wraps the `litigation-legal` plugin. Manages the litigation portfolio —
+      matter intake, briefings, deadlines, legal holds, demand letters
+      (with FRE 408 awareness and an explicit send gate), inbound subpoenas,
+      chronologies, deposition prep, brief sections in house style, privilege-log
+      first pass. Output is staged for attorney review; nothing is filed, sent,
+      or signed without an attorney's sign-off.
+    skills: [litigation-legal--brief-section-drafter, litigation-legal--chronology, litigation-legal--claim-chart, litigation-legal--cold-start-interview, litigation-legal--customize, litigation-legal--demand-draft, litigation-legal--demand-intake, litigation-legal--demand-received, litigation-legal--deposition-prep, litigation-legal--legal-hold, litigation-legal--matter-briefing, litigation-legal--matter-close, litigation-legal--matter-intake, litigation-legal--matter-update, litigation-legal--matter-workspace, litigation-legal--oc-status, litigation-legal--portfolio-status, litigation-legal--privilege-log-review, litigation-legal--subpoena-triage]
+
+  law-student:
+    name: Law Student
+    title: Law-school Study Companion
+    team: academy-tooling
+    description: |
+      Wraps the `law-student` plugin. Drills Socratically; briefs cases; builds
+      outlines; runs bar-prep sessions tuned to the student's gaps. Output is a
+      study aid — explicitly not legal advice and not a substitute for casebook
+      reading or instructor feedback.
+    skills: [law-student--bar-prep-questions, law-student--case-brief, law-student--cold-call-prep, law-student--cold-start-interview, law-student--customize, law-student--exam-forecast, law-student--flashcards, law-student--irac-practice, law-student--legal-writing, law-student--outline-builder, law-student--session, law-student--socratic-drill, law-student--study-plan]
+
+  legal-clinic:
+    name: Legal Clinic Operator
+    title: Law-school Clinic Operations Specialist
+    team: academy-tooling
+    description: |
+      Wraps the `legal-clinic` plugin. Sets up the clinic, onboards students,
+      runs structured intake, tracks deadlines and handoffs, manages client
+      communications, supports supervising attorneys' oversight. Output is
+      staged for supervising-attorney review; the supervising attorney remains
+      responsible for legal advice given to clinic clients.
+    skills: [legal-clinic--build-guide, legal-clinic--client-comms-log, legal-clinic--client-intake, legal-clinic--client-letter, legal-clinic--cold-start-interview, legal-clinic--customize, legal-clinic--deadlines, legal-clinic--draft, legal-clinic--form-generation, legal-clinic--memo, legal-clinic--plain-language-letters, legal-clinic--ramp, legal-clinic--research-start, legal-clinic--semester-handoff, legal-clinic--status, legal-clinic--supervisor-review-queue]
+
+  legal-builder-hub:
+    name: Legal Skill Curator
+    title: Legal Skill Discovery & Evaluation Specialist
+    team: academy-tooling
+    description: |
+      Wraps the `legal-builder-hub` plugin. Finds, evaluates, and installs
+      community legal skills — with a security review gate before anything is
+      installed. Output is an evaluation memo and installation plan, not an
+      automated install.
+    skills: [legal-builder-hub--auto-updater, legal-builder-hub--cold-start-interview, legal-builder-hub--customize, legal-builder-hub--disable, legal-builder-hub--registry-browser, legal-builder-hub--related-skills-surfacer, legal-builder-hub--skill-installer, legal-builder-hub--skill-manager, legal-builder-hub--skills-qa, legal-builder-hub--uninstall]
+
+skills:
+  # CEO port-original skills (hand-authored in this repo, no upstream counterpart):
+  intake-triage:
+    name: Intake Triage
+    description: Receive an incoming matter, classify it (practice area, urgency, scope), and route to the right specialist.
+    port_original: true
+  cross-practice-coordination:
+    name: Cross-Practice Coordination
+    description: Coordinate handoffs when work spans multiple practice areas (e.g., M&A diligence touching IP + employment + privacy).
+    port_original: true
+  escalation-routing:
+    name: Escalation Routing
+    description: When a specialist reports a blocker, decide between retry, reassign, or escalate-to-human.
+    port_original: true
+  weekly-summary:
+    name: Weekly Summary
+    description: Compose the company-level weekly digest — what shipped, what's blocked, what needs attorney review.
+    port_original: true
+
+  # 150 upstream-referenced skills (generated by `python -m scripts.extract_upstream_metadata`,
+  # reviewed inline). Re-running the helper after `make bump` regenerates this block.
+  commercial-legal--amendment-history:
+    name: "Amendment History"
+    description: "Trace how a contract has changed across its base agreement and all amendments — either a summary of all changes over time, or a provision trace for a specific clause."
+  commercial-legal--cold-start-interview:
+    name: "Cold Start Interview"
+    description: "Run the cold-start interview to learn your commercial contracts practice and write your team practice profile."
+  commercial-legal--customize:
+    name: "Customize"
+    description: "Guided customization of your commercial contracts practice profile — change one thing without re-running the whole cold-start interview."
+  commercial-legal--escalation-flagger:
+    name: "Escalation Flagger"
+    description: "Route a contract issue to the right approver per the escalation matrix in `~/.claude/plugins/config/claude-for-legal/commercial-legal/CLAUDE.md`, and draft the ask."
+  commercial-legal--matter-workspace:
+    name: "Matter Workspace"
+    description: "Manage matter workspaces — new, list, switch, close, or detach (practice-level)."
+  commercial-legal--nda-review:
+    name: "NDA Review"
+    description: "Reference: fast triage of inbound NDAs into GREEN / YELLOW / RED so the team only spends lawyer time on the ones that need it."
+  commercial-legal--renewal-tracker:
+    name: "Renewal Tracker"
+    description: "Show contracts with cancel-by deadlines coming up and warn before notice windows close, working from a maintained renewal register."
+  commercial-legal--review:
+    name: "Review"
+    description: "Review a vendor agreement, NDA, or SaaS subscription against your playbook."
+  commercial-legal--review-proposals:
+    name: "Review Proposals"
+    description: "Review and approve (or reject) pending playbook update proposals from the playbook-monitor agent and apply approved changes to the practice profile."
+  commercial-legal--saas-msa-review:
+    name: "SaaS MSA Review"
+    description: "Reference: review of SaaS subscription agreements with attention to the terms that matter most in subscription deals — auto-renewal mechanics, price escalation, data portability, uptime SLAs, and subprocessor rights."
+  commercial-legal--stakeholder-summary:
+    name: "Stakeholder Summary"
+    description: "Translates a contract review into a summary the business stakeholder will actually read."
+  commercial-legal--vendor-agreement-review:
+    name: "Vendor Agreement Review"
+    description: "Reference: review of an inbound vendor agreement against the team playbook in `~/.claude/plugins/config/claude-for-legal/commercial-legal/CLAUDE.md`."
+  corporate-legal--ai-tool-handoff:
+    name: "AI Tool Handoff"
+    description: "Detects when Luminance, Kira, or a similar bulk-review tool is in use, hands off the high-volume clause extraction to it, and QAs its output per the trust level in `~/.claude/plugins/config/claude-for-legal/corporate-legal/CLAUDE.md`."
+  corporate-legal--board-minutes:
+    name: "Board Minutes"
+    description: "Drafts board or committee meeting minutes in your house format."
+  corporate-legal--closing-checklist:
+    name: "Closing Checklist"
+    description: "What's blocking close — maintain the closing checklist with status, critical path, and days to close."
+  corporate-legal--cold-start-interview:
+    name: "Cold Start Interview"
+    description: "House cold-start interview (request list + prior memo), or --new-deal for deal-specific context."
+  corporate-legal--customize:
+    name: "Customize"
+    description: "Guided customization of your corporate practice profile — change one thing without re-running the whole cold-start interview."
+  corporate-legal--deal-team-summary:
+    name: "Deal Team Summary"
+    description: "Aggregate diligence findings into a deal team briefing at the right altitude for the audience — exec summary for leadership, working summary for the team."
+  corporate-legal--diligence-issue-extraction:
+    name: "Diligence Issue Extraction"
+    description: "Read VDR documents and extract issues per house categories and materiality thresholds, producing findings in house memo format."
+  corporate-legal--entity-compliance:
+    name: "Entity Compliance"
+    description: "Entity compliance tracker — initialize, report upcoming deadlines, update status, run health audit, export to CSV."
+  corporate-legal--integration-management:
+    name: "Integration Management"
+    description: "Post-closing M&A integration tracker — phased workplan, consent tracking, contract assignment at scale, weekly status reports."
+  corporate-legal--material-contract-schedule:
+    name: "Material Contract Schedule"
+    description: "Build the material contracts disclosure schedule from diligence findings, applying the purchase agreement's Material Contract definition and formatting per the agreement's schedule format."
+  corporate-legal--matter-workspace:
+    name: "Matter Workspace"
+    description: "Manage matter workspaces — create, list, switch, close, or detach the active matter so multi-client practitioners keep one client's context separate from every other."
+  corporate-legal--tabular-review:
+    name: "Tabular Review"
+    description: "Tabular review — one row per document, one column per data point, every cell cited to source."
+  corporate-legal--written-consent:
+    name: "Written Consent"
+    description: "Draft a unanimous written consent of the board or a committee in house format, with precedent search from the consents repository."
+  employment-legal--cold-start-interview:
+    name: "Cold Start Interview"
+    description: "Cold-start setup — learns your jurisdictional footprint and escalation rules from your handbook and termination memos."
+  employment-legal--customize:
+    name: "Customize"
+    description: "Guided customization of your employment practice profile — change one thing without re-running the whole cold-start interview."
+  employment-legal--expansion-kickoff:
+    name: "Expansion Kickoff"
+    description: "Kick off international expansion planning for a new country — gathers intake, runs EOR vs."
+  employment-legal--expansion-update:
+    name: "Expansion Update"
+    description: "Update the status of an in-progress international expansion project — recalculates what is now unblocked, flags anything overdue, and surfaces the next priorities."
+  employment-legal--handbook-updates:
+    name: "Handbook Updates"
+    description: "Diff a proposed handbook change against the current version, flag ripple effects and state supplement impacts."
+  employment-legal--hiring-review:
+    name: "Hiring Review"
+    description: "Review an offer letter and any restrictive covenants — jurisdiction check included."
+  employment-legal--internal-investigation:
+    name: "Internal Investigation"
+    description: "Reference: shared framework for managing internal investigations from intake through final memo — privileged investigation log, document processing with needle-finding, source coverage tracking, Q&A against the log, memo drafting, and audience summaries."
+  employment-legal--international-expansion:
+    name: "International Expansion"
+    description: "Reference: implementation-planning framework for international hiring — EOR vs."
+  employment-legal--investigation-add:
+    name: "Investigation Add"
+    description: "Add data to an open investigation — documents, interview notes, or observations."
+  employment-legal--investigation-memo:
+    name: "Investigation Memo"
+    description: "Draft or update the privileged investigation memo from the investigation log."
+  employment-legal--investigation-open:
+    name: "Investigation Open"
+    description: "Open a new internal investigation matter — runs intake, generates the sources checklist, and creates the persistent investigation log."
+  employment-legal--investigation-query:
+    name: "Investigation Query"
+    description: "Ask questions against an open investigation log — what witnesses said, where accounts conflict, what gaps exist, what the strongest evidence is on each issue."
+  employment-legal--investigation-summary:
+    name: "Investigation Summary"
+    description: "Draft an audience-specific summary from the privileged investigation memo — HR, leadership, or outside counsel versions."
+  employment-legal--leave-tracker:
+    name: "Leave Tracker"
+    description: "Check open leaves for deadline alerts and required decisions."
+  employment-legal--log-leave:
+    name: "Log Leave"
+    description: "Add a new leave to the leave register with the minimum information needed to start tracking deadlines."
+  employment-legal--matter-workspace:
+    name: "Matter Workspace"
+    description: "Manage matter workspaces — new, list, switch, close, or detach (practice- level)."
+  employment-legal--policy-drafting:
+    name: "Policy Drafting"
+    description: "Draft an employment policy with state supplements where law differs across the jurisdictional footprint."
+  employment-legal--termination-review:
+    name: "Termination Review"
+    description: "Termination review — high-risk flag detection, severance + release, and final pay timing by jurisdiction."
+  employment-legal--wage-hour-qa:
+    name: "Wage Hour Q&A"
+    description: "Jurisdiction-aware wage/hour and employment Q&A — classification, overtime, meal/rest breaks, leave, final pay — answered for the specific state/country with the controlling rule researched and cited rather than stated from memory."
+  employment-legal--worker-classification:
+    name: "Worker Classification"
+    description: "Classify a proposed worker engagement — employee, IC, temp, or vendor — by running the applicable jurisdiction tests and flagging misclassification gaps between the intended arrangement and what the facts actually support."
+  privacy-legal--cold-start-interview:
+    name: "Cold Start Interview"
+    description: "Run the cold-start interview — learns your privacy practice and writes CLAUDE.md from your policy, DPA template, and a reference PIA."
+  privacy-legal--customize:
+    name: "Customize"
+    description: "Guided customization of your privacy practice profile — change one thing without re-running the whole cold-start interview."
+  privacy-legal--dpa-review:
+    name: "DPA Review"
+    description: "Review a Data Processing Agreement against your DPA playbook — auto-detects whether you're processor or controller and applies the right half of the playbook."
+  privacy-legal--dsar-response:
+    name: "DSAR Response"
+    description: "Walk through a Data Subject Access Request (or deletion, portability, correction request) and draft the response — verify identity, locate data system-by-system, assess exemptions, draft the acknowledgment and substantive response letters."
+  privacy-legal--matter-workspace:
+    name: "Matter Workspace"
+    description: "Manage matter workspaces — create, list, switch, close, or detach (practice-level)."
+  privacy-legal--pia-generation:
+    name: "PIA Generation"
+    description: "Generate a Privacy Impact Assessment in house format for a new feature, product, or processing activity, using the structure learned from your seed PIA."
+  privacy-legal--policy-monitor:
+    name: "Policy Monitor"
+    description: "Keep the privacy policy current with practice."
+  privacy-legal--reg-gap-analysis:
+    name: "Reg Gap Analysis"
+    description: "Diff a new or changed regulation against current privacy policy and practice — outputs a gap list and a remediation plan with owners and dates."
+  privacy-legal--use-case-triage:
+    name: "Use Case Triage"
+    description: "Quickly determine whether a processing activity needs a PIA, a mandatory GDPR DPIA, or can proceed — surfaces privacy policy conflicts and routes to the right next step."
+  product-legal--cold-start-interview:
+    name: "Cold Start Interview"
+    description: "Cold-start interview — connects to your launch tracker, reads past reviews, learns your risk calibration."
+  product-legal--customize:
+    name: "Customize"
+    description: "Guided customization of your product counsel practice profile — change one thing without re-running the whole cold-start interview."
+  product-legal--feature-risk-assessment:
+    name: "Feature Risk Assessment"
+    description: "Deeper risk assessment for a single feature or product area when the launch review found something that needs more than a line item."
+  product-legal--is-this-a-problem:
+    name: "Is This A Problem"
+    description: "Fast \"is this a problem?\" answer for the quick Slack question — pattern-matches against your calibration."
+  product-legal--launch-review:
+    name: "Launch Review"
+    description: "Full launch review against your framework and risk calibration."
+  product-legal--marketing-claims-review:
+    name: "Marketing Claims Review"
+    description: "Review marketing copy for claims that need substantiation, reframing, or cutting."
+  product-legal--matter-workspace:
+    name: "Matter Workspace"
+    description: "Manage matter workspaces — new, list, switch, close, or detach (practice-level)."
+  regulatory-legal--cold-start-interview:
+    name: "Cold Start Interview"
+    description: "Cold-start interview — builds your watchlist, indexes the policy library, and learns your materiality threshold so the monitor surfaces signal instead of noise."
+  regulatory-legal--comments:
+    name: "Comments"
+    description: "Review open NPRM comment periods, log decisions, track deadlines."
+  regulatory-legal--customize:
+    name: "Customize"
+    description: "Guided customization of your regulatory practice profile — change one thing without re-running the whole cold-start interview."
+  regulatory-legal--gap-surfacer:
+    name: "Gap Surfacer"
+    description: "Reference: shared gap- and comment-tracker framework backing /regulatory-legal:gaps and /regulatory-legal:comments."
+  regulatory-legal--gaps:
+    name: "Gaps"
+    description: "Open gaps tracker — what's flagged and not yet closed."
+  regulatory-legal--matter-workspace:
+    name: "Matter Workspace"
+    description: "Manage matter workspaces — create, list, switch, close, or detach the active matter (practice-level)."
+  regulatory-legal--policy-diff:
+    name: "Policy Diff"
+    description: "Diff a specific regulatory change against the indexed policy library."
+  regulatory-legal--policy-redraft:
+    name: "Policy Redraft"
+    description: "Produce a proposed marked-up policy redraft that closes a gap found by /regulatory-legal:gaps or /regulatory-legal:policy-diff."
+  regulatory-legal--reg-feed-watcher:
+    name: "Reg Feed Watcher"
+    description: "Check regulatory feeds now and report what's new since the last check, filtered by your materiality threshold."
+  ai-governance-legal--ai-inventory:
+    name: "AI Inventory"
+    description: "EU AI Act per-system inventory — track each AI system's role (provider, deployer, importer, distributor, authorized representative, product manufacturer) and risk tier (prohibited, high-risk, limited, minimal, GPAI, GPAI+systemic)."
+  ai-governance-legal--aia-generation:
+    name: "AIA Generation"
+    description: "Run an AI impact assessment — structured intake, risk analysis, regulatory classification per regime in scope, policy consistency diff, and recommendation with conditions."
+  ai-governance-legal--cold-start-interview:
+    name: "Cold Start Interview"
+    description: "Run the cold-start interview — learns your AI governance practice and writes `~/.claude/plugins/config/claude-for-legal/ai-governance-legal/CLAUDE.md` from your AI policy, a reference impact assessment, and key vendor AI agreements."
+  ai-governance-legal--customize:
+    name: "Customize"
+    description: "Guided customization of your AI governance practice profile — change one thing without re-running the whole cold-start interview."
+  ai-governance-legal--matter-workspace:
+    name: "Matter Workspace"
+    description: "Manage matter workspaces — new, list, switch, close, or detach (practice-level)."
+  ai-governance-legal--policy-monitor:
+    name: "Policy Monitor"
+    description: "Keep the AI policy current with practice — weekly sweep of saved AIAs, triage results, and vendor reviews to find policy drift, or direct query for a proposed new AI practice."
+  ai-governance-legal--policy-starter:
+    name: "Policy Starter"
+    description: "Draft a firm AI usage policy from published model policies, adapted to your practice profile — a research-and-synthesis tool whose output is a draft for attorney review and adoption, not a finished policy."
+  ai-governance-legal--reg-gap-analysis:
+    name: "Reg Gap Analysis"
+    description: "Diff a new AI regulation or guidance against your current governance posture — surfaces gaps, priorities, and a remediation plan with owners and deadlines."
+  ai-governance-legal--use-case-triage:
+    name: "Use Case Triage"
+    description: "Classify a proposed AI use case against your registry — approved, conditional, or not approved — and produce required conditions and next steps."
+  ai-governance-legal--vendor-ai-review:
+    name: "Vendor AI Review"
+    description: "Review vendor AI terms — agreement, addendum, or ToS AI provisions — against your governance positions; flag training-on-data, liability, model changes, and AI policy consistency."
+  ip-legal--cease-desist:
+    name: "Cease Desist"
+    description: "Draft a cease-and-desist letter (send mode) or triage one you received (receive mode)."
+  ip-legal--clearance:
+    name: "Clearance"
+    description: "Trademark clearance first pass — knockout + similar-marks check producing a flag list, not a clearance opinion."
+  ip-legal--cold-start-interview:
+    name: "Cold Start Interview"
+    description: "Run the cold-start interview to learn your IP practice and write your practice profile."
+  ip-legal--customize:
+    name: "Customize"
+    description: "Guided customization of your IP practice profile — change one thing without re-running the whole cold-start interview."
+  ip-legal--fto-triage:
+    name: "FTO Triage"
+    description: "Freedom-to-operate triage — a structured first look at potentially blocking patents, not an FTO opinion."
+  ip-legal--infringement-triage:
+    name: "Infringement Triage"
+    description: "Infringement triage across trademark, copyright, patent, and trade secret — a flag list with the factors cutting each way, not a finding."
+  ip-legal--invention-intake:
+    name: "Invention Intake"
+    description: "Invention disclosure first-pass screen — novelty, obviousness, §101 eligibility, bar dates, detectability, and strategic value."
+  ip-legal--ip-clause-review:
+    name: "IP Clause Review"
+    description: "Review the IP clauses in an agreement — assignment, ownership, license grants, warranties, indemnities."
+  ip-legal--matter-workspace:
+    name: "Matter Workspace"
+    description: "Manage matter workspaces — create, list, switch, close, or detach the active matter."
+  ip-legal--oss-review:
+    name: "OSS Review"
+    description: "Open source license compliance check for a dependency list, a single library, or outbound code."
+  ip-legal--portfolio:
+    name: "Portfolio"
+    description: "Track the IP portfolio — registrations, renewals, maintenance fees, and use declarations."
+  ip-legal--takedown:
+    name: "Takedown"
+    description: "Draft a DMCA takedown notice, triage one you received, or draft a §512(g) counter-notice."
+  litigation-legal--brief-section-drafter:
+    name: "Brief Section Drafter"
+    description: "Draft a brief section in house style, consistent with the case theory — every fact cited, every case checked, every argument tied to the theory."
+  litigation-legal--chronology:
+    name: "Chronology"
+    description: "Build or update a chronology from declared document sources and uploads — dated events extracted, de-duped, and tagged by significance per the matter theory."
+  litigation-legal--claim-chart:
+    name: "Claim Chart"
+    description: "Build or review an element chart — a patent claim chart (infringement, invalidity, or review) or a civil element chart for any cause of action or defense — with every cell pin-cited and gap detection as the priority output."
+  litigation-legal--cold-start-interview:
+    name: "Cold Start Interview"
+    description: "House cold-start for the litigation plugin — branches by role (in-house, firm associate, solo) and side (plaintiff, defense, both), captures risk calibration, landscape, and house style, and writes the practice profile CLAUDE.md."
+  litigation-legal--customize:
+    name: "Customize"
+    description: "Guided customization of your litigation practice profile — change one thing without re-running the whole cold-start interview."
+  litigation-legal--demand-draft:
+    name: "Demand Draft"
+    description: "Draft a demand letter from a completed intake, gated on a privilege / FRE 408 / waiver / admission checklist, with a .docx output, post-send checklist, and an offer to create a matter."
+  litigation-legal--demand-intake:
+    name: "Demand Intake"
+    description: "Pre-drafting context gathering for a demand letter — parties, facts, basis, leverage, BATNA, and privilege filters — written to a structured intake.md the demand-draft skill reads."
+  litigation-legal--demand-received:
+    name: "Demand Received"
+    description: "Triage an inbound demand letter — extract fields, cross-check the portfolio, assess merit, present response options with a recommendation, and hand off to matter-intake or demand-intake if escalation is warranted."
+  litigation-legal--deposition-prep:
+    name: "Deposition Prep"
+    description: "Build a deposition outline for a witness — pull their documents from the eDiscovery platform, organize topics around the case theory, and surface impeachment material."
+  litigation-legal--legal-hold:
+    name: "Legal Hold"
+    description: "Issue, refresh, release, or report on legal holds — drafts the hold notice as .docx, updates legal_hold fields in _log.yaml, and calendars the next refresh."
+  litigation-legal--matter-briefing:
+    name: "Matter Briefing"
+    description: "Deep briefing on one matter — current posture, what's changed, next deadline, open questions, and a risk re-assessment check, ready before a GC update or outside counsel call."
+  litigation-legal--matter-close:
+    name: "Matter Close"
+    description: "Close a matter — capture outcome, final exposure, and lessons, then archive it out of the active portfolio without deleting the record."
+  litigation-legal--matter-intake:
+    name: "Matter Intake"
+    description: "Intake a new matter — uniform questions covering identification, conflicts, source, risk triage, materiality, outside counsel, owners, legal hold, and key dates; writes matter.md and history.md and appends a structured row to _log.yaml."
+  litigation-legal--matter-update:
+    name: "Matter Update"
+    description: "Append a dated event to a matter's history file and refresh the log row — captures new developments, status changes, risk re-assessments, deadline shifts, and settlement authority changes."
+  litigation-legal--matter-workspace:
+    name: "Matter Workspace"
+    description: "Manage matter workspaces for multi-client practices — create, list, switch, close, or detach the active matter."
+  litigation-legal--oc-status:
+    name: "OC Status"
+    description: "Generate weekly status-request email drafts to outside counsel across the active portfolio — markdown per matter, plus Gmail drafts when the MCP is available."
+  litigation-legal--portfolio-status:
+    name: "Portfolio Status"
+    description: "Roll up the portfolio from _log.yaml — risk distribution, upcoming deadlines, stale matters, materiality totals, stage distribution, and flagged anomalies."
+  litigation-legal--privilege-log-review:
+    name: "Privilege Log Review"
+    description: "First-pass privilege log review — make the obvious privilege calls and flag the hard ones for attorney review without making close calls."
+  litigation-legal--subpoena-triage:
+    name: "Subpoena Triage"
+    description: "Triage a subpoena served on the company — classify it, analyze scope/burden/privilege, cross-check the portfolio, and produce an objections framework, compliance plan, and deadline calendar."
+  law-student--bar-prep-questions:
+    name: "Bar Prep Questions"
+    description: "Bar prep questions — MBE or essay, targeted at your weak subjects and bar jurisdiction."
+  law-student--case-brief:
+    name: "Case Brief"
+    description: "Brief a case in your preferred format."
+  law-student--cold-call-prep:
+    name: "Cold Call Prep"
+    description: "Prep for a cold-call — predict the professor's likely questions and drill them Socratically, flagging where you're shaky so you know what to re-read before class."
+  law-student--cold-start-interview:
+    name: "Cold Start Interview"
+    description: "About-you interview and materials intake — classes, bar jurisdiction, learning style (drill-me vs explain-to-me), past outlines, graded essays, old exams, MBE sets, syllabi, papers."
+  law-student--customize:
+    name: "Customize"
+    description: "Guided customization of your law-student study profile — change one thing without re-running the whole cold-start interview."
+  law-student--exam-forecast:
+    name: "Exam Forecast"
+    description: "Analyze past exams from the same professor to surface patterns — subject weighting, recurring issue-spot traps, favored hypo types, policy-vs-doctrine mix — and forecast likely emphases for the upcoming exam."
+  law-student--flashcards:
+    name: "Flashcards"
+    description: "Generate or drill flashcards for black-letter memorization — Leitner-style buckets, per-subject markdown storage, drill mode with self-assessment."
+  law-student--irac-practice:
+    name: "IRAC Practice"
+    description: "Grade an IRAC essay for structure, issue-spotting, rule accuracy, analysis depth, and organization."
+  law-student--legal-writing:
+    name: "Legal Writing"
+    description: "Structural feedback on a legal writing draft (memo, brief, paper, exam essay) — organization, analysis depth, clarity, citation form."
+  law-student--outline-builder:
+    name: "Outline Builder"
+    description: "Build or extend a course outline in your format, from class notes and casebook."
+  law-student--session:
+    name: "Session"
+    description: "Run a focused N-question study session on a subject — MBE, essay, or flashcards."
+  law-student--socratic-drill:
+    name: "Socratic Drill"
+    description: "Socratic drilling — it asks, you answer, it pushes back."
+  law-student--study-plan:
+    name: "Study Plan"
+    description: "Build or update a long-term bar prep (or exam prep) study plan — phases, subjects weighted by weakness, daily session schedule, adaptive to session history in study-plan.yaml."
+  legal-clinic--build-guide:
+    name: "Build Guide"
+    description: "Help a clinic supervisor author a practice-area guide that configures how student-facing skills behave — intake questions, pedagogy posture (assist / guide / teach), review gates, cross-plugin checks, and local rules."
+  legal-clinic--client-comms-log:
+    name: "Client Comms Log"
+    description: "Log a client communication — call, email, text, letter, in-person, voicemail."
+  legal-clinic--client-intake:
+    name: "Client Intake"
+    description: "Structured intake — practice-area templates, cross-area issue spotting, conflict flags, and triage classification."
+  legal-clinic--client-letter:
+    name: "Client Letter"
+    description: "Routine client correspondence from templates — appointment confirmations, document requests, brief \"we filed it\" updates."
+  legal-clinic--cold-start-interview:
+    name: "Cold Start Interview"
+    description: "Professor's one-time clinic setup — practice areas, jurisdiction, supervision style (formal review queue / configurable flags / lighter-touch), and handbook/rules upload."
+  legal-clinic--customize:
+    name: "Customize"
+    description: "Guided customization of your legal clinic profile — change one thing without re-running the whole cold-start interview."
+  legal-clinic--deadlines:
+    name: "Deadlines"
+    description: "Track case deadlines — add, cross-case rollup report, update, complete, close."
+  legal-clinic--draft:
+    name: "Draft"
+    description: "First draft of a common clinic document — practice-area templates (asylum applications, eviction answers, protective order petitions, demand letters), jurisdiction-aware formatting, explicitly a starting point requiring student analysis and attorney review."
+  legal-clinic--form-generation:
+    name: "Form Generation"
+    description: "Reference: DEPRECATED — use `/draft` instead."
+  legal-clinic--memo:
+    name: "Memo"
+    description: "IRAC-scaffolded case analysis memo with research gaps flagged — the scaffold, not the analysis."
+  legal-clinic--plain-language-letters:
+    name: "Plain Language Letters"
+    description: "Reference: DEPRECATED — use `/client-letter` for routine correspondence or `/status client` for substantive updates."
+  legal-clinic--ramp:
+    name: "Ramp"
+    description: "Student semester onboarding — clinic procedures, tool walkthrough, practice exercises before real cases."
+  legal-clinic--research-start:
+    name: "Research Start"
+    description: "Research roadmap for a legal issue — statutes to check, case law areas to investigate, regulatory frameworks, Westlaw search terms."
+  legal-clinic--semester-handoff:
+    name: "Semester Handoff"
+    description: "End-of-semester case handoff memos — the mirror of /ramp."
+  legal-clinic--status:
+    name: "Status"
+    description: "Case status summary by audience — client-facing (plain language), internal (for the professor), or court-ready (formal caption format per local rules)."
+  legal-clinic--supervisor-review-queue:
+    name: "Supervisor Review Queue"
+    description: "Professor's review queue — student output waits here for professor approval before going to clients or courts."
+  legal-builder-hub--auto-updater:
+    name: "Auto Updater"
+    description: "Check installed community skills for updates."
+  legal-builder-hub--cold-start-interview:
+    name: "Cold Start Interview"
+    description: "Practice-profile interview that recommends and installs a starter pack of community legal skills."
+  legal-builder-hub--customize:
+    name: "Customize"
+    description: "Guided customization of your Legal Builder Hub profile — change one thing without re-running the whole cold-start interview."
+  legal-builder-hub--disable:
+    name: "Disable"
+    description: "Disable a community skill installed through the hub without removing its files."
+  legal-builder-hub--registry-browser:
+    name: "Registry Browser"
+    description: "Search watched registries for community legal skills, showing matches with descriptions and offering to show the full SKILL.md before install."
+  legal-builder-hub--related-skills-surfacer:
+    name: "Related Skills Surfacer"
+    description: "Suggest community skills based on recent activity in other plugins."
+  legal-builder-hub--skill-installer:
+    name: "Skill Installer"
+    description: "Install a community skill from a watched registry."
+  legal-builder-hub--skill-manager:
+    name: "Skill Manager"
+    description: "Reference: detailed uninstall, disable, and re-enable workflows for community skills installed via the legal builder hub."
+  legal-builder-hub--skills-qa:
+    name: "Skills Q&A"
+    description: "Evaluate a skill against the Legal Skill Design Framework — thirteen design parameters (including trust-surface, freshness, schema validation, and conflict detection), three legal failure modes, and a three-band verdict (Ready / Some Concern / Material Concerns)."
+  legal-builder-hub--uninstall:
+    name: "Uninstall"
+    description: "Uninstall a community skill that was installed via the hub."
