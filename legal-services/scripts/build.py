@@ -114,3 +114,12 @@ def upstream_path_for_skill(slug: str) -> str:
 
 def _frontmatter(data: dict[str, Any]) -> str:
     return "---\n" + yaml.safe_dump(data, sort_keys=False, allow_unicode=True) + "---\n"
+
+
+def fetch_upstream_file(repo: str, commit: str, path: str) -> bytes:
+    """Fetch raw bytes of a file from upstream at the pinned commit."""
+    out = subprocess.run(
+        ["gh", "api", f"repos/{repo}/contents/{path}?ref={commit}", "--jq", ".content"],
+        check=True, capture_output=True, text=True,
+    )
+    return base64.b64decode(out.stdout.strip())
