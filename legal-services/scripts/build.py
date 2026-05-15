@@ -212,3 +212,33 @@ def emit_teams(m: Manifest, teams_root: Path) -> None:
         }
         body = f"\n# {team.name}\n\n{team.description}\n"
         (out_dir / "TEAM.md").write_text(_frontmatter(fm) + body)
+
+
+def emit_agents(m: Manifest, agents_root: Path) -> None:
+    for slug, agent in m.agents.items():
+        out_dir = agents_root / slug
+        out_dir.mkdir(parents=True, exist_ok=True)
+        if agent.team is None:
+            reports_to = "../../COMPANY.md"
+            tags = ["legal", "executive"]
+            sources = [{"mode": "port-original"}]
+        else:
+            reports_to = f"../../teams/{agent.team}/TEAM.md"
+            tags = ["legal", agent.team]
+            sources = [
+                {
+                    "url": f"https://github.com/{m.upstream.repo}/tree/{m.upstream.commit}/{slug}",
+                    "mode": "referenced",
+                }
+            ]
+        fm = {
+            "slug": slug,
+            "name": agent.name,
+            "title": agent.title,
+            "reportsTo": reports_to,
+            "skills": list(agent.skills),
+            "tags": tags,
+            "metadata": {"sources": sources},
+        }
+        body = f"\n# {agent.name}\n\n{agent.description.strip()}\n"
+        (out_dir / "AGENTS.md").write_text(_frontmatter(fm) + body)

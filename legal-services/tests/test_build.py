@@ -110,3 +110,43 @@ def test_emit_teams_reports_to_coordinator_when_single_top_level_agent(tmp_path)
     fm_end = fm_text.find("\n---\n", 4)
     fm = yaml.safe_load(fm_text[4:fm_end])
     assert fm["reportsTo"] == "../../agents/ceo/AGENTS.md"
+
+
+from scripts.build import emit_agents
+
+
+def test_emit_agents_specialist_url_uses_agent_slug_as_plugin_dir(tmp_path):
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    emit_agents(m, tmp_path)
+    agent_md = (tmp_path / "alpha" / "AGENTS.md").read_text()
+    fm_end = agent_md.find("\n---\n", 4)
+    fm = yaml.safe_load(agent_md[4:fm_end])
+    assert fm["slug"] == "alpha"
+    assert fm["reportsTo"] == "../../teams/team-a/TEAM.md"
+    assert fm["skills"] == ["alpha-legal--review"]
+    # URL points at the upstream plugin directory by agent slug.
+    assert fm["metadata"]["sources"][0]["url"] == (
+        "https://github.com/example/upstream/tree/deadbeef/alpha"
+    )
+    assert "legal" in fm["tags"]
+    assert "team-a" in fm["tags"]
+
+
+def test_emit_agents_top_level_agent_is_port_original(tmp_path):
+    fixture = Path(__file__).parent / "fixtures" / "manifest_minimal.yaml"
+    m = load_manifest(fixture)
+    m.agents["ceo"] = Agent(
+        name="CEO",
+        title="Chief Executive Officer",
+        description="Top-level coordinator.",
+        skills=["intake-triage"],
+        team=None,
+    )
+    emit_agents(m, tmp_path)
+    fm_text = (tmp_path / "ceo" / "AGENTS.md").read_text()
+    fm_end = fm_text.find("\n---\n", 4)
+    fm = yaml.safe_load(fm_text[4:fm_end])
+    assert fm["reportsTo"] == "../../COMPANY.md"
+    assert fm["metadata"]["sources"] == [{"mode": "port-original"}]
+    assert fm["tags"] == ["legal", "executive"]
