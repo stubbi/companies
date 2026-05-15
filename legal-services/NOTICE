@@ -1,0 +1,28 @@
+legal-services — Community port of anthropics/claude-for-legal
+
+This package is a community port of Anthropic's "Claude for Legal" reference
+agents and skills (https://github.com/anthropics/claude-for-legal) into the
+Agent Companies format used by the stubbi/companies catalog.
+
+Upstream:
+  Repository:    anthropics/claude-for-legal
+  Pinned commit: 9cecd91b0f26f732d18315afc3c9bb5ff99e0fbb (2026-05-12)
+  License:       Apache-2.0 (preserved by this port)
+
+Skill content is referenced upstream by content-hashed path, not vendored.
+Run `make check` to verify upstream files have not drifted from the pinned hashes.
+
+Deferred from this port (v0.1.0):
+  * Per-plugin scheduled-agent .md files under each plugin's agents/ directory
+    (e.g., commercial-legal/agents/deal-debrief.md). These represent managed-agent
+    cron workflows; will be added in a follow-up release.
+  * The top-level managed-agent-cookbooks/ directory (renewal-watcher,
+    docket-watcher, launch-radar, reg-monitor, diligence-grid).
+  * MCP server inventory (CONNECTORS.md / .mcp.json) — these belong to runtime
+    configuration, not to the company manifest.
+
+This port is not affiliated with or endorsed by Anthropic, PBC. "Claude" is a
+trademark of Anthropic, PBC; this package's use of the name in upstream-attribution
+contexts is purely descriptive.
+
+Maintained by Jannes Stubbemann <jannes@paperclip.inc>.
