@@ -208,7 +208,7 @@ skills:
     description: Receive an incoming matter, classify it (practice area, urgency, scope), and route to the right specialist.
     port_original: true
   cross-practice-coordination:
-    name: Cross-practice Coordination
+    name: Cross-Practice Coordination
     description: Coordinate handoffs when work spans multiple practice areas (e.g., M&A diligence touching IP + employment + privacy).
     port_original: true
   escalation-routing:
