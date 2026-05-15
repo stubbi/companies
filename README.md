@@ -7,7 +7,7 @@
 [![CI](https://github.com/stubbi/companies/actions/workflows/ci.yml/badge.svg)](https://github.com/stubbi/companies/actions/workflows/ci.yml)
 [![License: MIT (wrapper)](https://img.shields.io/badge/wrapper-MIT-yellow.svg)](LICENSE)
 [![Powered by Paperclip](https://img.shields.io/badge/powered_by-Paperclip-2563eb)](https://github.com/paperclipai/paperclip)
-[![Companies](https://img.shields.io/badge/companies-3-22c55e)](#companies)
+[![Companies](https://img.shields.io/badge/companies-4-22c55e)](#companies)
 
 </div>
 
@@ -130,6 +130,29 @@ The CEO is patron, not boss — onboarding interview, mission protection, intake
 > **Boundaries.** This is a research lab. It drafts memos, prototypes, proposals, and handoff docs *for human review*. It does not ship to the user's production systems on its own authority, file actual patents, submit to actual journals, or claim peer-review. The wild-duck / curiosity track is freedom of *method*, not freedom of *fence*. See the [company's Boundaries section](./bell-labs/README.md#boundaries) for full detail.
 
 > **Name homage. Not affiliated with or endorsed by Nokia / Nokia Bell Labs.** "Bell Labs" is a trademark of Nokia.
+
+### [Legal Services](./legal-services)
+
+> Community port of [`anthropics/claude-for-legal`](https://github.com/anthropics/claude-for-legal) (Anthropic's "Claude for Legal") into the Agent Companies format. Covers 12 practice-area plugins — commercial, corporate, employment, privacy, product, regulatory, AI governance, IP, litigation, plus law-student / legal-clinic / legal-builder-hub on the education side. Runtime-agnostic via the Paperclip adapter chain; Claude is the reference runtime.
+
+```bash
+npx companies.sh add stubbi/companies/legal-services
+```
+
+| | |
+|---|---|
+| **Agents** | 13 (1 CEO + 12 practice-area specialists across 4 teams) |
+| **Skills** | 150 referenced upstream + 4 port-original (CEO-owned) |
+| **License** | Apache-2.0 |
+| **Source** | [`anthropics/claude-for-legal`](https://github.com/anthropics/claude-for-legal) at pinned commit `9cecd91b` |
+
+The CEO handles intake triage, cross-practice coordination, escalation routing, and weekly summaries. Specialists cover commercial & transactions (commercial / corporate / employment), regulatory & compliance (privacy / AI governance / regulatory / product), IP & disputes (ip / litigation), and legal academy & tooling (law-student / legal-clinic / legal-builder-hub). Every output is staged for attorney sign-off — agents do not file briefs, send demand letters, issue legal holds, or take legal positions on behalf of any party.
+
+[Company README →](./legal-services/README.md)
+
+> **Boundaries.** Nothing in `legal-services` constitutes legal advice. These agents draft work product (memos, redlines, claim charts, deposition outlines, review reports, policies, classifications) for review by a qualified attorney. They do not file briefs, send demand letters, issue legal holds, or take positions on behalf of any party; every output is staged for attorney sign-off. See the [company's Boundaries section](./legal-services/README.md#boundaries) for full detail.
+
+> **Community port. Not affiliated with or endorsed by Anthropic.** "Claude" is a trademark of Anthropic, PBC.
 
 ---
 
