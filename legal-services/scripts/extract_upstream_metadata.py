@@ -8,6 +8,7 @@ Then review and paste into manifest.yaml. NOT run by `make build`.
 """
 from __future__ import annotations
 
+import json
 import re
 import subprocess
 import sys
@@ -37,13 +38,17 @@ PLUGINS = [
 
 
 def list_plugin_skills(plugin: str) -> list[str]:
-    """Return the bare skill slugs (subdirs of <plugin>/skills/) for one plugin."""
+    """Return the bare skill slugs (subdirs of <plugin>/skills/) for one plugin.
+
+    Plugin slugs are alphanumeric + single dashes; no regex escaping needed
+    (jq's regex flavor rejects `\\-` which is what `re.escape` emits).
+    """
     out = subprocess.run(
         [
             "gh", "api",
             f"repos/{UPSTREAM_REPO}/git/trees/{UPSTREAM_COMMIT}?recursive=1",
             "--jq",
-            f'.tree[] | select(.path | test("^{re.escape(plugin)}/skills/[^/]+/SKILL\\\\.md$")) | .path',
+            f'.tree[] | select(.path | test("^{plugin}/skills/[^/]+/SKILL\\\\.md$")) | .path',
         ],
         check=True, capture_output=True, text=True,
     )
@@ -88,9 +93,11 @@ def main() -> int:
         for bare in bare_slugs:
             slug = f"{plugin}--{bare}"
             name, desc = extract_skill_metadata(plugin, bare)
+            # JSON-quoted strings are valid single-line YAML scalars; avoids
+            # safe_dump's document-end marker and multi-line continuation noise.
             lines.append(f"  {slug}:")
-            lines.append(f"    name: {yaml.safe_dump(name).strip()}")
-            lines.append(f"    description: {yaml.safe_dump(desc).strip()}")
+            lines.append(f"    name: {json.dumps(name, ensure_ascii=False)}")
+            lines.append(f"    description: {json.dumps(desc, ensure_ascii=False)}")
     print("\n".join(lines))
     return 0
 
