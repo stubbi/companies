@@ -199,7 +199,7 @@ version: 0.1.0
 license: MIT
 authors:
   - name: Jannes Stubbemann
-    email: jannes@paperclip.inc
+    email: jannes@aqora.io
 goals: [test]
 tags: [test]
 
@@ -277,7 +277,7 @@ version: 0.1.0
 license: MIT
 authors:
   - name: Jannes Stubbemann
-    email: jannes@paperclip.inc
+    email: jannes@aqora.io
 goals:
   - Carry out long-horizon (months to years) research arcs in service of the user's declared north-star mission, staging every output as a dated, witnessed Technical Memorandum for human review.
   - Preserve Bell Labs' five-archetype structure with a separated patron (CEO) and instigator (Director of Research), plus the systems-engineer and librarian boundary roles every modern imitator has dropped.

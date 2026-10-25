@@ -6,7 +6,7 @@ version: 0.1.0
 license: Apache-2.0
 authors:
   - name: Jannes Stubbemann
-    email: jannes@paperclip.inc
+    email: jannes@aqora.io
 goals:
   - Draft legal work product (memos, redlines, claim charts, deposition outlines, review reports, policies, classifications) for attorney review.
   - Cover the 12 practice-area plugins Anthropic shipped — commercial, corporate, employment, privacy, product, regulatory, AI governance, IP, litigation, plus law-student / legal-clinic / legal-builder-hub on the education side.
