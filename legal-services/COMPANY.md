@@ -10,7 +10,7 @@ version: 0.1.0
 license: Apache-2.0
 authors:
 - name: Jannes Stubbemann
-  email: jannes@paperclip.inc
+  email: jannes@aqora.io
 goals:
 - Draft legal work product (memos, redlines, claim charts, deposition outlines, review
   reports, policies, classifications) for attorney review.

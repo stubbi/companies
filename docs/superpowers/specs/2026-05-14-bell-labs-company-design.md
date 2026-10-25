@@ -1,7 +1,7 @@
 # Design — Bell Labs Agent Company
 
 **Status:** brainstormed; awaiting user review before implementation plan.
-**Author:** Jannes Stubbemann (jannes@paperclip.inc — matching catalog convention; existing manifests use this address)
+**Author:** Jannes Stubbemann (jannes@aqora.io)
 **Date:** 2026-05-14
 **Target:** new company directory `bell-labs/` in [`stubbi/companies`](https://github.com/stubbi/companies).
 **Format precedent:** Agent Companies schema `agentcompanies/v1`, as used by `academic-research/` and `financial-services/`.
@@ -38,7 +38,7 @@ version: 0.1.0
 license: MIT
 authors:
   - name: Jannes Stubbemann
-    email: jannes@paperclip.inc
+    email: jannes@aqora.io
 tags: [research, invention, industrial-research, bell-labs, technical-memo,
        directed-curiosity, long-horizon]
 ```

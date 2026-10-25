@@ -16,7 +16,7 @@ version: 0.1.0
 license: MIT
 authors:
 - name: Jannes Stubbemann
-  email: jannes@paperclip.inc
+  email: jannes@aqora.io
 goals:
 - Carry out long-horizon (months to years) research arcs in service of the user's
   declared north-star mission, staging every output as a dated, witnessed Technical

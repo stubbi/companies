@@ -10,7 +10,7 @@ version: 0.1.0
 license: CC-BY-NC-4.0
 authors:
 - name: Jannes Stubbemann
-  email: jannes@paperclip.inc
+  email: jannes@aqora.io
 goals:
 - Draft full academic papers (research → write → review → revise → finalize) for human
   researcher review.
